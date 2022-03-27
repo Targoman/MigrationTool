@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -21,30 +21,29 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-#include "cmdCreateDB.h"
+#include "cmdNewLocal.h"
 #include "../Configs.h"
 #include <signal.h>
 #include <unistd.h>
 
 namespace Targoman::Migrate::Commands {
 
-cmdCreateDB::cmdCreateDB()
-{
-
-}
-
-void cmdCreateDB::help()
+cmdNewLocal::cmdNewLocal()
 {
 }
 
-bool cmdCreateDB::run()
+void cmdNewLocal::help()
+{
+}
+
+bool cmdNewLocal::run()
 {
     QString FileName;
     QString FullFileName;
     quint32 ProjectIndex;
 
     if (ChooseCreateMigrationProperties(
-                enuChooseCreateMigrationScope::db,
+                enuChooseCreateMigrationScope::local,
                 FileName,
                 FullFileName,
                 ProjectIndex
@@ -62,9 +61,10 @@ bool cmdCreateDB::run()
 
     QTextStream writer(&File);
     writer
-        << "/* Migration File: "
+        << "#!/bin/bash"
+        << endl
+        << "# Migration File: "
         << FileName
-        << " */"
         << endl
         << endl
         ;

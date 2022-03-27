@@ -6,20 +6,20 @@
 #   Redistribution and use in source and binary forms are allowed under the
 #   terms of BSD License 2.0.
 ################################################################################
-APP_NAME=targomanMigrate
+APP_NAME=migrationTool
 include($$QBUILD_PATH/templates/innerAppConfigs.pri)
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
 HEADERS += \
+    appsrc/Commands/cmdNewDB.h \
+    appsrc/Commands/cmdNewDBDiff.h \
+    appsrc/Commands/cmdNewLocal.h \
     appsrc/Defs.h \
     appsrc/Configs.h \
     appsrc/CommandManager.h \
     appsrc/Commands/Common.h \
     appsrc/Commands/intfCommand.h \
     appsrc/Commands/cmdCommit.h \
-    appsrc/Commands/cmdCreateDB.h \
-    appsrc/Commands/cmdCreateDBDiff.h \
-    appsrc/Commands/cmdCreateLocal.h \
     appsrc/Commands/cmdHistory.h \
     appsrc/Commands/cmdList.h \
     appsrc/Commands/cmdMark.h \
@@ -27,12 +27,12 @@ HEADERS += \
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
 SOURCES += \
+    appsrc/Commands/cmdNewDB.cpp \
+    appsrc/Commands/cmdNewDBDiff.cpp \
+    appsrc/Commands/cmdNewLocal.cpp \
     appsrc/Configs.cpp \
     appsrc/CommandManager.cpp \
     appsrc/Commands/cmdCommit.cpp \
-    appsrc/Commands/cmdCreateDB.cpp \
-    appsrc/Commands/cmdCreateDBDiff.cpp \
-    appsrc/Commands/cmdCreateLocal.cpp \
     appsrc/Commands/cmdHistory.cpp \
     appsrc/Commands/cmdList.cpp \
     appsrc/Commands/cmdMark.cpp \

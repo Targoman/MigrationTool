@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -28,9 +28,9 @@
 #include "CommandManager.h"
 #include "Commands/intfCommand.h"
 #include "Commands/cmdShowConf.h"
-#include "Commands/cmdCreateDB.h"
-#include "Commands/cmdCreateDBDiff.h"
-#include "Commands/cmdCreateLocal.h"
+#include "Commands/cmdNewDB.h"
+#include "Commands/cmdNewDBDiff.h"
+#include "Commands/cmdNewLocal.h"
 #include "Commands/cmdHistory.h"
 #include "Commands/cmdList.h"
 #include "Commands/cmdMark.h"
@@ -59,16 +59,16 @@ void CommandManager::slotExecute()
                 Command = cmdShowConf::instancePtr();
                 break;
 
-            case enuAppCommand::createdb:
-                Command = cmdCreateDB::instancePtr();
+            case enuAppCommand::newdb:
+                Command = cmdNewDB::instancePtr();
                 break;
 
-            case enuAppCommand::createdbdiff:
-                Command = cmdCreateDBDiff::instancePtr();
+            case enuAppCommand::newdbdiff:
+                Command = cmdNewDBDiff::instancePtr();
                 break;
 
-            case enuAppCommand::createlocal:
-                Command = cmdCreateLocal::instancePtr();
+            case enuAppCommand::newlocal:
+                Command = cmdNewLocal::instancePtr();
                 break;
 
             case enuAppCommand::history:
@@ -104,7 +104,7 @@ void CommandManager::slotExecute()
         }
 
         if (Command == nullptr)
-            throw exTargomanMigrate("Invalid command");
+            throw exMigrationTool("Invalid command");
 
         if (false) //SHOW_HELP
         {
@@ -154,11 +154,13 @@ void CommandManager::slotExecute()
                       FROM information_schema.SCHEMATA
                      WHERE SCHEMA_NAME=?
                 )";
-                clsDACResult ResultTable = DAC1.execQuery("", Qry, { SchemaName });
+                clsDACResult ResultTable = DAC1.execQuery("", Qry, {
+                                                              Configs::DBPrefix.value() + SchemaName
+                                                          });
 
                 if (ResultTable.toJson(true).object().isEmpty())
                 {
-                    qDebug() << "database" << SchemaName << "not exists in" << DBServerName;
+                    qDebug() << "database" << Configs::DBPrefix.value() + SchemaName << "not exists in" << DBServerName;
                     Configs::RunningParameters.NonExistsProjectDBConnectionStrings[ProjectDestinationKey] = ConnStringWithSchema;
                 }
                 else

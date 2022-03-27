@@ -16,11 +16,11 @@ OTHER_FILES += \
     README.md \
     INSTALL \
     LICENSE \
-    migrations/TargomanMigrate/db/* \
-    migrations/TargomanMigrate/local/* \
-    migrations/TargomanMigrate/local/.migrations \
+    migrations/MigrationTool/db/* \
+    migrations/MigrationTool/local/* \
+    migrations/MigrationTool/local/.migrations \
     conf/* \
-    targomanMigrate-bash-completion.bash \
+    MigrationTool-bash-completion.bash \
     install-bash-completion.sh \
-    runTargomanMigrate-dev.sh \
-    runTargomanMigrate.sh \
+    runMigrationTool-dev.sh \
+    runMigrationTool.sh \

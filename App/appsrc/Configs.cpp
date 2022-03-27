@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -33,14 +33,14 @@ tmplConfigurable<enuAppCommand::Type> Configs::Command(
     Configs::makeConfig("Command"),
     R"(Application command:
                     showconf    : Show Migrations Config
-                    createdb    : Creating new global migration (store in /migrations/.../db/)
-                    createlocal : Creating new local migration (store in /migrations/.../local/)
+                    newdb       : Creating new global migration (store in /migrations/.../db/)
+                    newlocal    : Creating new local migration (store in /migrations/.../local/)
                     list        : List of unapplied migrations
                     history     : List of applied migrations
                     commit      : Apply unapplied migrations
                     mark        : Set migrations as applied to the specified point (not actually run migrations)
 )",
-//createdbdiff      : Creating new global database migration and fills by libTargomanDBCompare (store in /migrations/db/)
+//newdbdiff      : Creating new global database migration and fills by libTargomanDBCompare (store in /migrations/db/)
 //rollback          : Rollback applied migrations
     enuAppCommand::list,
     ReturnTrueCrossValidator(),
@@ -137,13 +137,24 @@ tmplConfigurableArray<stuProject> Configs::Projects(
 //tmplConfigurable<QString> Configs::ApplyToAllSourceName(
 //    Configs::makeConfig("ApplyToAllSourceName"),
 //    "Source name for migrations set that must applied to the all other sources",
-//    "TargomanMigrate",
+//    "MigrationTool",
 //    ReturnTrueCrossValidator(),
 //    "",
 //    "NAME",
 //    "apply-to-all-source-name",
 //    enuConfigSource::Arg | enuConfigSource::File
 //);
+
+tmplConfigurable<QString> Configs::Project(
+    Configs::makeConfig("Project"),
+    "Project to focus",
+    "",
+    ReturnTrueCrossValidator(),
+    "",
+    "PROJECT",
+    "project",
+    enuConfigSource::Arg | enuConfigSource::File
+);
 
 tmplConfigurable<bool> Configs::DBOnly(
     Configs::makeConfig("DBOnly"),
@@ -234,6 +245,12 @@ void Configs::FillRunningParameters()
                     {
                         stuProject &Project = Configs::Projects[idxProjects];
 
+                        if ((Configs::Project.value().isEmpty() == false)
+                                && (Project.Name.value() != Configs::Project.value())
+                                && (Project.ApplyToAllProjects.value() == false)
+                            )
+                            continue;
+
 //                        qDebug() << "lookup" << DBServerName << "in" << Project.DBDestinations.value(); //.join("|");
 
                         if (Project.AllowDB.value()
@@ -258,8 +275,8 @@ void Configs::FillRunningParameters()
                                                            .arg(Configs::DBPrefix.value())
                                                            .arg(Project.Name.value());
 
-                            QString ProjectDestinationKey = QString("%1%2@%3")
-                                                            .arg(Configs::DBPrefix.value())
+                            QString ProjectDestinationKey = QString("%1@%2")
+//                                                            .arg(Configs::DBPrefix.value())
                                                             .arg(Project.Name.value())
                                                             .arg(DBServerName);
 

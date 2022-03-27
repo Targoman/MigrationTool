@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -21,8 +21,8 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-#ifndef TARGOMAN_MIGRATE_DEFS_H
-#define TARGOMAN_MIGRATE_DEFS_H
+#ifndef MIGRATION_TOOL_DEFS_H
+#define MIGRATION_TOOL_DEFS_H
 
 #include <QHostAddress>
 #include <QVariantMap>
@@ -39,9 +39,9 @@ namespace Targoman::Migrate {
 
 TARGOMAN_DEFINE_ENHANCED_ENUM(enuAppCommand,
                               showconf,
-                              createdb,
-                              createdbdiff,
-                              createlocal,
+                              newdb,
+                              newdbdiff,
+                              newlocal,
                               list,
                               history,
                               commit,
@@ -52,12 +52,13 @@ TARGOMAN_DEFINE_ENHANCED_ENUM(enuAppCommand,
                               );
 
 constexpr char LINE_SPLITTER[] = "------------------------------------------------------------------------";
-constexpr char REGEX_PATTERN_MIGRATION_FILENAME[]     = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql)";
-constexpr char REGEX_PATTERN_MIGRATION_LOG_FILENAME[] = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql).log";
+constexpr char REGEX_PATTERN_MIGRATION_FILENAME[]      = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql)";
+constexpr char REGEX_PATTERN_MIGRATION_LOG_FILENAME[]  = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql).log";
+constexpr char CREATE_DB_MIGRATION_HISTORY_FILE_NAME[] = "m00000000_000000_MigrationTool_migration_init.sql";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wweak-vtables"
-TARGOMAN_ADD_EXCEPTION_HANDLER(exTargomanMigrate, Targoman::Common::exTargomanBase);
+TARGOMAN_ADD_EXCEPTION_HANDLER(exMigrationTool, Targoman::Common::exTargomanBase);
 #pragma clang diagnostic pop
 
 struct stuDBServer
@@ -329,4 +330,4 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
     return ret;
 }
 
-#endif // TARGOMAN_MIGRATE_DEFS_H
+#endif // MIGRATION_TOOL_DEFS_H
