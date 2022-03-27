@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -34,9 +34,9 @@ void cmdHistory::help()
 {
     qInfo() << "List of applied migrations";
     //        qInfo() << _line_splitter;
-    //        qInfo() << "./targomanMigrate" << "History     : showing the first 10 applied migrations";
-    //        qInfo() << "./targomanMigrate" << "History 5   : showing the first 5 applied migrations";
-    //        qInfo() << "./targomanMigrate" << "History all : showing all applied migrations";
+    //        qInfo() << "./MigrationTool" << "History     : showing the first 10 applied migrations";
+    //        qInfo() << "./MigrationTool" << "History 5   : showing the first 5 applied migrations";
+    //        qInfo() << "./MigrationTool" << "History all : showing all applied migrations";
 }
 
 bool cmdHistory::run()

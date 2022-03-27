@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -34,10 +34,10 @@ void cmdMark::help()
 {
     qInfo() << "Modifying migration history without actually run migrations";
     //        qInfo() << _line_splitter;
-    //        qInfo() << "./targomanMigrate" << "Mark 20220101_010203                              : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./targomanMigrate" << "Mark m20220101_010203                             : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./targomanMigrate" << "Mark m20220101_010203_description_of_migration    : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./targomanMigrate" << "Mark m20220101_010203_description_of_migration.sh : add all unapplied migrations upto 20220101_010203";
+    //        qInfo() << "./MigrationTool" << "Mark 20220101_010203                              : add all unapplied migrations upto 20220101_010203";
+    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203                             : add all unapplied migrations upto 20220101_010203";
+    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration    : add all unapplied migrations upto 20220101_010203";
+    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration.sh : add all unapplied migrations upto 20220101_010203";
 }
 
 bool cmdMark::run()

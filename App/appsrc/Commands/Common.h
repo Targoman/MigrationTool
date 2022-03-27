@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -21,8 +21,8 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-#ifndef TARGOMAN_MIGRATE_COMMON_H
-#define TARGOMAN_MIGRATE_COMMON_H
+#ifndef MIGRATION_TOOL_COMMON_H
+#define MIGRATION_TOOL_COMMON_H
 
 #include "../Defs.h"
 #include "../Configs.h"
@@ -1069,7 +1069,7 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                             Qry.remove(0, idx + 1);
 
                             if (Delimiter.isEmpty())
-                                throw exTargomanMigrate("delimiter is empty");
+                                throw exMigrationTool("delimiter is empty");
 
 //                            QString SmallQry = QString("DELIMITER %1").arg(Delimiter);
 //                            qDebug() << "Executing query" << SmallQry;
@@ -1154,4 +1154,4 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
 
 } // namespace Targoman::Migrate::Commands
 
-#endif // TARGOMAN_MIGRATE_COMMON_H
+#endif // MIGRATION_TOOL_COMMON_H

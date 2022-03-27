@@ -1,14 +1,14 @@
 /******************************************************************************
-#   TargomanMigrate
+#   MigrationTool
 #
 #   Copyright 2014-2020 by Targoman Intelligent Processing <http://tip.co.ir>
 #
-#   TargomanMigrate is free software: you can redistribute it and/or modify
+#   MigrationTool is free software: you can redistribute it and/or modify
 #   it under the terms of the GNU AFFERO GENERAL PUBLIC LICENSE as published by
 #   the Free Software Foundation, either version 3 of the License, or
 #   (at your option) any later version.
 #
-#   TargomanMigrate is distributed in the hope that it will be useful,
+#   MigrationTool is distributed in the hope that it will be useful,
 #   but WITHOUT ANY WARRANTY; without even the implied warranty of
 #   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
 #   GNU AFFERO GENERAL PUBLIC LICENSE for more details.
@@ -21,8 +21,8 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-#ifndef TARGOMAN_MIGRATE_COMMANDMANAGER_H
-#define TARGOMAN_MIGRATE_COMMANDMANAGER_H
+#ifndef MIGRATION_TOOL_COMMANDMANAGER_H
+#define MIGRATION_TOOL_COMMANDMANAGER_H
 
 #include "Defs.h"
 #include <QObject>
@@ -42,7 +42,7 @@ public slots:
 
 } //namespace Targoman::Migrate
 
-#endif // TARGOMAN_MIGRATE_COMMANDMANAGER_H
+#endif // MIGRATION_TOOL_COMMANDMANAGER_H
 
 /*
 
@@ -62,7 +62,7 @@ DBServers/2/UserName = root
 DBServers/2/Password = targoman123
 DBServers/2/Port = 3306
 
-Projects/0/Name = TargomanMigrate
+Projects/0/Name = MigrationTool
 Projects/0/AllowDB = true
 Projects/0/AllowLocal = true
 Projects/0/ApplyToAllProjects = true

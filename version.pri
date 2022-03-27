@@ -6,8 +6,8 @@
 #   Redistribution and use in source and binary forms are allowed under the
 #   terms of BSD License 2.0.
 ################################################################################
-ProjectName="TargomanMigrate"
-VERSION=0.2.2
+ProjectName="MigrationTool"
+VERSION=0.2.3
 
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-
 LIBS += -lTargomanCommon \
@@ -23,7 +23,7 @@ defined(QJsonRPC, var) equals(QJsonRPC, 1) {
 
 !defined(NoRedis, var) | equals(NoRedis, 1) {
   LIBS+= -lhiredis
-  DEFINES += TARGOMAN_MIGRATE_REDIS_PROTOCOL
+  DEFINES += MIGRATION_TOOL_REDIS_PROTOCOL
 }
 
 #+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-++-+-+-
