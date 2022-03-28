@@ -26,6 +26,8 @@
 
 namespace Targoman::Migrate::Commands {
 
+bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile);
+
 cmdCheckBC::cmdCheckBC()
 {
 }
@@ -36,8 +38,8 @@ void cmdCheckBC::help()
 
 bool cmdCheckBC::run()
 {
-    ProjectMigrationFileInfoMap MigrationFiles;
-    ExtractMigrationFiles(MigrationFiles);
+    ProjectMigrationFileInfoMap ProjectMigrationFiles;
+    ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
@@ -46,15 +48,39 @@ bool cmdCheckBC::run()
 //    qDebug() << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
-    RemoveAppliedFromList(MigrationFiles, MigrationHistories);
-
-    if (MigrationFiles.isEmpty())
+    RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
+    if (ProjectMigrationFiles.isEmpty())
     {
         qInfo() << "nothing to check";
         return true;
     }
 
-    qDebug() << "** Unapplied MigrationFiles ******************************";
+    //-----------------------------------------
+    //remove project name from migrations and make unique
+    MigrationFileInfoMap MigrationFiles;
+    for (ProjectMigrationFileInfoMap::const_iterator it = ProjectMigrationFiles.constBegin();
+         it != ProjectMigrationFiles.constEnd();
+         it++)
+    {
+        const stuProjectMigrationFileInfo &val = it.value();
+
+        QString MigrationName = val.FileName + ":" + val.Scope;
+
+        if (MigrationFiles.contains(MigrationName))
+            continue;
+
+        MigrationFiles.insert(MigrationName, {
+                                  MigrationName,
+                                  val.FileName,
+                                  val.Scope,
+                                  val.FullFileName
+                              });
+    }
+
+    qDebug().noquote().nospace()
+            << endl
+            << "Unapplied migrations:"
+            ;
     dump(MigrationFiles);
     qInfo() << "";
 
@@ -127,30 +153,28 @@ bool cmdCheckBC::run()
         }
     }
 
-    qInfo() << "Checking migrations:";
-    qInfo() << LINE_SPLITTER;
+    qInfo().noquote().nospace()
+            << "Checking migrations:"
+            << endl
+            << QString(150, '-')
+            ;
 
     int idx = 1;
     foreach (auto MigrationFile, MigrationFiles)
     {
         qStdout()
-                << "    "
-                << QString::number(idx++).rightJustified(5)
-                << " "
+                << QString::number(idx++).rightJustified(4)
+                << ") "
                 << MigrationFile.FileName
                 << " ["
                 << MigrationFile.Scope
-                << "/"
-                << (MigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
-                << MigrationFile.Project
                 << "]"
 //                << MigrationFile.FullFileName
                 << " : "
                 ;
 
-//        RunMigrationFile(MigrationFile);
-
-        qStdout() << "Checked" << endl;
+        bool result = IsMigrationFileBackwardCompatible(MigrationFile);
+        qStdout() << (result ? "Yes (Backward Compatible)" : "No (Backward Incompatible)") << endl;
 
         --RemainCount;
         if (RemainCount <= 0)
@@ -158,6 +182,116 @@ bool cmdCheckBC::run()
     }
 
     qInfo() << "";
+
+    return true;
+}
+
+bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile)
+{
+    if (_migrationFile.Scope == "db")
+    {
+        QFile File(_migrationFile.FullFileName);
+
+        if (!File.open(QFile::ReadOnly | QFile::Text))
+            throw exTargomanBase("File not found");
+
+        QTextStream Stream(&File);
+        QString Qry = Stream.readAll().trimmed();
+        File.close();
+
+        if (Qry.isEmpty() == false)
+        {
+            QString Delimiter = ";";
+            while (Qry.isEmpty() == false)
+            {
+                if (Qry.startsWith("delimiter ", Qt::CaseInsensitive))
+                {
+                    Qry.remove(0, QString("delimiter ").length());
+
+                    int idx = Qry.indexOf("\n");
+                    if (idx < 0)
+                        break; //new delimiter without new line mark: nothing to run
+
+                    if (idx == 0)
+                    {
+                        Qry.remove(0, 1);
+                    }
+                    else
+                    {
+                        Delimiter = Qry.left(idx).trimmed();
+                        Qry.remove(0, idx + 1);
+
+                        if (Delimiter.isEmpty())
+                            throw exMigrationTool("delimiter is empty");
+                    }
+                }
+                else
+                {
+                    int idx = Qry.indexOf(Delimiter);
+
+                    QString SmallQry;
+                    if (idx >= 0)
+                    {
+                        SmallQry = Qry.left(idx).trimmed();
+                        Qry.remove(0, idx + Delimiter.length());
+                    }
+                    else
+                    {
+                        SmallQry = Qry.trimmed();
+                        Qry = "";
+                    }
+
+                    if (SmallQry.isEmpty() == false)
+                    {
+//                            SmallQry += ";";
+//                        qDebug() << "\t\tChecking query" << SmallQry.left(50) << "...";
+//                        clsDACResult MainResult = DAC.execQuery("", SmallQry);
+
+
+
+
+
+
+
+
+
+
+
+
+                        return false;
+                    }
+                }
+
+                Qry = Qry.trimmed();
+            }
+        }
+    } //db
+    else //local
+    {
+        QFileInfo FileInfo(_migrationFile.FullFileName);
+
+        if (FileInfo.exists() == false)
+            throw exTargomanBase("File not found");
+
+        if (FileInfo.size() > 0)
+        {
+            if (FileInfo.isExecutable() == false)
+                QFile::setPermissions(
+                            _migrationFile.FullFileName,
+                            FileInfo.permissions() |
+                            QFile::ExeUser | QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther
+                            );
+
+            QProcess MigrationProcess;
+            MigrationProcess.start(_migrationFile.FullFileName, { "checkbc" });
+
+            if (!MigrationProcess.waitForFinished())
+                throw exTargomanBase("Execution failed");
+
+            if (MigrationProcess.exitCode() == 0) //not compatible
+                return false;
+        }
+    }
 
     return true;
 }

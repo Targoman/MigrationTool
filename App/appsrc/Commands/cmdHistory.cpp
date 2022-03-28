@@ -46,7 +46,7 @@ bool cmdHistory::run()
 //    qDebug() << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
-    ProjectMigrationFileInfoMap MigrationFiles;
+    ProjectMigrationFileInfoMap ProjectMigrationFiles;
     for (MigrationHistoryMap::const_iterator it = MigrationHistories.constBegin();
          it != MigrationHistories.constEnd();
          it++)
@@ -77,14 +77,14 @@ bool cmdHistory::run()
                 );
 
 //                qDebug() << "*" << MigrationName;
-                MigrationFiles.insert(MigrationName, ProjectMigrationFileInfo);
+                ProjectMigrationFiles.insert(MigrationName, ProjectMigrationFileInfo);
             }
         }
     }
 
     qInfo() << "Applied migrations:";
     qInfo() << LINE_SPLITTER;
-    dump(MigrationFiles, true);
+    dump(ProjectMigrationFiles, true);
 
     return true;
 }
