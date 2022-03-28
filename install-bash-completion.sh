@@ -1,3 +1,3 @@
 #!/bin/bash
 
-cp MigrationTool-bash-completion.bash /etc/bash_completion.d/
+cp migrationTool-bash-completion.bash /etc/bash_completion.d/

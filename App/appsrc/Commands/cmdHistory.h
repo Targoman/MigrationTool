@@ -35,7 +35,7 @@ public:
     instanceGetterPtr(cmdHistory);
     cmdHistory();
 
-    virtual bool needDB() { return true; }
+    virtual bool needDB() { return (Configs::LocalOnly.value() == false); }
     virtual void help();
     virtual bool run();
 };

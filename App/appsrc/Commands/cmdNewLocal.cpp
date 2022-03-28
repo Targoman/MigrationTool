@@ -63,9 +63,20 @@ bool cmdNewLocal::run()
     writer
         << "#!/bin/bash"
         << endl
-        << "# Migration File: "
+        << "#Migration File: "
         << FileName
         << endl
+        << R"(
+if [ $# -ge 1 ]; then
+  case $1 in
+    "checkbc")
+      echo "checking backward compatibility"
+      # exit 0 if this script is not backward compatible
+      exit 1
+    ;;
+  esac
+fi
+)"
         << endl
         ;
     File.close();

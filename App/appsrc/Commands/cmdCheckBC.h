@@ -21,19 +21,19 @@
  * @author Kambiz Zandi <kambizzandi@gmail.com>
  */
 
-#ifndef MIGRATION_TOOL_CMDCOMMIT_H
-#define MIGRATION_TOOL_CMDCOMMIT_H
+#ifndef MIGRATION_TOOL_CMDCHECKBC_H
+#define MIGRATION_TOOL_CMDCHECKBC_H
 
 #include "../Defs.h"
 #include "intfCommand.h"
 
 namespace Targoman::Migrate::Commands {
 
-class cmdCommit : public intfCommand
+class cmdCheckBC : public intfCommand
 {
 public:
-    instanceGetterPtr(cmdCommit);
-    cmdCommit();
+    instanceGetterPtr(cmdCheckBC);
+    cmdCheckBC();
 
     virtual bool needDB() { return (Configs::LocalOnly.value() == false); }
     virtual void help();
@@ -42,4 +42,4 @@ public:
 
 } // namespace Targoman::Migrate::Commands
 
-#endif // MIGRATION_TOOL_CMDCOMMIT_H
+#endif // MIGRATION_TOOL_CMDCHECKBC_H

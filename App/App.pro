@@ -11,6 +11,7 @@ include($$QBUILD_PATH/templates/innerAppConfigs.pri)
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
 HEADERS += \
+    appsrc/Commands/cmdCheckBC.h \
     appsrc/Commands/cmdNewDB.h \
     appsrc/Commands/cmdNewDBDiff.h \
     appsrc/Commands/cmdNewLocal.h \
@@ -27,6 +28,7 @@ HEADERS += \
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
 SOURCES += \
+    appsrc/Commands/cmdCheckBC.cpp \
     appsrc/Commands/cmdNewDB.cpp \
     appsrc/Commands/cmdNewDBDiff.cpp \
     appsrc/Commands/cmdNewLocal.cpp \
