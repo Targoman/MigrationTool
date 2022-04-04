@@ -176,12 +176,19 @@ bool cmdCheckBC::run()
         bool result = IsMigrationFileBackwardCompatible(MigrationFile);
         qStdout() << (result ? "Yes (Backward Compatible)" : "No (Backward Incompatible)") << endl;
 
+        if (result == false)
+        {
+            qStdout() << "[STATUS:BREAKED]" << endl;
+            return true;
+        }
+
         --RemainCount;
         if (RemainCount <= 0)
             break;
     }
 
     qInfo() << "";
+    qStdout() << "[STATUS:OK]" << endl;
 
     return true;
 }
@@ -245,20 +252,10 @@ bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFil
                     {
 //                            SmallQry += ";";
 //                        qDebug() << "\t\tChecking query" << SmallQry.left(50) << "...";
-//                        clsDACResult MainResult = DAC.execQuery("", SmallQry);
 
+                        //TODO: parse qry and check command
 
-
-
-
-
-
-
-
-
-
-
-                        return false;
+                        return false;  //not compatible
                     }
                 }
 
