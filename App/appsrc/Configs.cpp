@@ -180,7 +180,7 @@ tmplConfigurable<bool> Configs::LocalOnly(
 
 tmplConfigurable<bool> Configs::All(
     Configs::makeConfig("All"),
-    "Turn All switch to on for commit and mark commands",
+    "Turn All switch to on for (commit/mark/checkbc) commands",
     false,
     ReturnTrueCrossValidator(),
     "",

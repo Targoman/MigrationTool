@@ -239,6 +239,76 @@ inline bool ChooseCreateMigrationProperties(
     return true;
 }
 
+struct stuMigrationFileInfo {
+    QString MigrationName;
+    QString FileName;
+    QString Scope; //db, local
+    QString FullFileName;
+
+    stuMigrationFileInfo(const stuMigrationFileInfo &_other) :
+        MigrationName(_other.MigrationName),
+        FileName(_other.FileName),
+        Scope(_other.Scope),
+        FullFileName(_other.FullFileName)
+    {}
+
+    stuMigrationFileInfo(
+            const QString &_migrationName,
+            const QString &_fileName,
+            const QString &_scope,
+            const QString &_fullFileName
+        ) :
+        MigrationName(_migrationName),
+        FileName(_fileName),
+        Scope(_scope),
+        FullFileName(_fullFileName)
+    {}
+};
+//key: MigrationName
+typedef QMap<QString, stuMigrationFileInfo> MigrationFileInfoMap;
+
+inline void dump(MigrationFileInfoMap &_var)
+{
+    int maxWidth_Name = QString("File Name").length();
+    foreach (auto val, _var)
+    {
+        maxWidth_Name = max(maxWidth_Name, val.FileName.length());
+    }
+
+    qDebug().noquote() //.nospace()
+            << "     "
+//#ifdef QT_DEBUG
+//            << QString("key").leftJustified(60)
+//#endif
+            << QString("File Name").leftJustified(maxWidth_Name)
+            << QString("Scope").leftJustified(8)
+            << "Full File Name"
+            ;
+    qDebug().noquote()
+            << QString(150, '-');
+
+    int idx = 1;
+    for (MigrationFileInfoMap::const_iterator it = _var.constBegin();
+         it != _var.constEnd();
+         it++)
+    {
+        QString key = it.key();
+        const stuMigrationFileInfo &val = it.value();
+
+        qDebug().noquote() //.nospace()
+                << QString::number(idx).rightJustified(4) + ")"
+//#ifdef QT_DEBUG
+//                << key.leftJustified(60)
+//#endif
+                << val.FileName.leftJustified(maxWidth_Name)
+                << val.Scope.leftJustified(8)
+                << val.FullFileName
+                ;
+
+        ++idx;
+    }
+}
+
 struct stuProjectMigrationFileInfo {
     QString MigrationName;
     QString FileName;
@@ -273,8 +343,8 @@ typedef QMap<QString, stuProjectMigrationFileInfo> ProjectMigrationFileInfoMap;
 
 //inline void dumpHeaders(QStringList &_headers, QList<quint32> &_maxWidth)
 //{
-
 //}
+
 inline void dump(ProjectMigrationFileInfoMap &_var, bool _renderForAppliedHistoryItem = false)
 {
 //    QStringList Headers = QStringList()

@@ -16,11 +16,11 @@ OTHER_FILES += \
     README.md \
     INSTALL \
     LICENSE \
+    migrationTool-bash-completion.bash \
     migrations/MigrationTool/db/* \
     migrations/MigrationTool/local/* \
     migrations/MigrationTool/local/.migrations \
     conf/* \
-    MigrationTool-bash-completion.bash \
     install-bash-completion.sh \
     runMigrationTool-dev.sh \
     runMigrationTool.sh \

@@ -36,8 +36,8 @@ void cmdCommit::help()
 
 bool cmdCommit::run()
 {
-    ProjectMigrationFileInfoMap MigrationFiles;
-    ExtractMigrationFiles(MigrationFiles);
+    ProjectMigrationFileInfoMap ProjectMigrationFiles;
+    ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
@@ -46,23 +46,23 @@ bool cmdCommit::run()
 //    qDebug() << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
-    RemoveAppliedFromList(MigrationFiles, MigrationHistories);
+    RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
-    if (MigrationFiles.isEmpty())
+    if (ProjectMigrationFiles.isEmpty())
     {
         qInfo() << "nothing to commit";
         return true;
     }
 
     qDebug() << "** Unapplied MigrationFiles ******************************";
-    dump(MigrationFiles);
+    dump(ProjectMigrationFiles);
     qInfo() << "";
 
     qint32 RemainCount = 0;
 
     if (Configs::All.value())
     {
-        RemainCount = MigrationFiles.count();
+        RemainCount = ProjectMigrationFiles.count();
     }
     else
     {
@@ -75,7 +75,7 @@ bool cmdCommit::run()
                     << " "
                     ;
 
-            if (MigrationFiles.count() == 1)
+            if (ProjectMigrationFiles.count() == 1)
             {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
@@ -90,7 +90,7 @@ bool cmdCommit::run()
                         << " "
                         << reverse("1 to [") << reverse(bold("1")) << reverse("]")
                         << reverse(" ... ")
-                        << reverse("[") << reverse(bold(QString::number(MigrationFiles.count()))) << reverse("]")
+                        << reverse("[") << reverse(bold(QString::number(ProjectMigrationFiles.count()))) << reverse("]")
                         ;
             }
             qStdout() << " ";
@@ -106,7 +106,7 @@ bool cmdCommit::run()
 
             if (value == "a")
             {
-                RemainCount = MigrationFiles.count();
+                RemainCount = ProjectMigrationFiles.count();
                 break;
             }
             else
@@ -116,8 +116,8 @@ bool cmdCommit::run()
 
                 if (ok)
                 {
-                    if ((RemainCount <= 0) || (RemainCount > MigrationFiles.count()))
-                        qStdout() << "Input must be between 1 and " << MigrationFiles.count() << endl;
+                    if ((RemainCount <= 0) || (RemainCount > ProjectMigrationFiles.count()))
+                        qStdout() << "Input must be between 1 and " << ProjectMigrationFiles.count() << endl;
                     else
                         break;
                 }
@@ -131,24 +131,23 @@ bool cmdCommit::run()
     qInfo() << LINE_SPLITTER;
 
     int idx = 1;
-    foreach (auto MigrationFile, MigrationFiles)
+    foreach (auto ProjectMigrationFile, ProjectMigrationFiles)
     {
         qStdout()
-                << "    "
-                << QString::number(idx++).rightJustified(5)
-                << " "
-                << MigrationFile.FileName
+                << QString::number(idx++).rightJustified(4)
+                << ") "
+                << ProjectMigrationFile.FileName
                 << " ["
-                << MigrationFile.Scope
+                << ProjectMigrationFile.Scope
                 << "/"
-                << (MigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
-                << MigrationFile.Project
+                << (ProjectMigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
+                << ProjectMigrationFile.Project
                 << "]"
 //                << MigrationFile.FullFileName
                 << " : "
                 ;
 
-        RunMigrationFile(MigrationFile);
+        RunMigrationFile(ProjectMigrationFile);
 
         qStdout() << "OK" << endl;
 

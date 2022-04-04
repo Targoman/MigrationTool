@@ -35,6 +35,7 @@
 #include "Commands/cmdList.h"
 #include "Commands/cmdMark.h"
 #include "Commands/cmdCommit.h"
+#include "Commands/cmdCheckBC.h"
 
 using namespace Targoman::Common;
 
@@ -85,6 +86,10 @@ void CommandManager::slotExecute()
 
             case enuAppCommand::commit:
                 Command = cmdCommit::instancePtr();
+                break;
+
+            case enuAppCommand::checkbc:
+                Command = cmdCheckBC::instancePtr();
                 break;
 
 //            case enuAppCommand::rollback:
