@@ -27,8 +27,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdMark::cmdMark()
-{
-}
+{ ; }
 
 void cmdMark::help()
 {
@@ -54,8 +53,7 @@ bool cmdMark::run()
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
-    if (ProjectMigrationFiles.isEmpty())
-    {
+    if (ProjectMigrationFiles.isEmpty()) {
         qInfo() << "nothing to mark";
         return true;
     }
@@ -67,13 +65,9 @@ bool cmdMark::run()
     qint32 RemainCount = 0;
 
     if (Configs::All.value())
-    {
         RemainCount = ProjectMigrationFiles.count();
-    }
-    else
-    {
-        while (true)
-        {
+    else {
+        while (true) {
             qStdout()
                     << "Which migrations do you want to mark?"
                     << " "
@@ -81,16 +75,13 @@ bool cmdMark::run()
                     << " "
                     ;
 
-            if (ProjectMigrationFiles.count() == 1)
-            {
+            if (ProjectMigrationFiles.count() == 1) {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << reverse(" = ")
                         << reverse("[") << reverse(bold("1")) << reverse("]")
                         ;
-            }
-            else
-            {
+            } else {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << " "
@@ -110,24 +101,19 @@ bool cmdMark::run()
             if (value == "c")
                 return true;
 
-            if (value == "a")
-            {
+            if (value == "a") {
                 RemainCount = ProjectMigrationFiles.count();
                 break;
-            }
-            else
-            {
+            } else {
                 bool ok = false;
                 RemainCount = value.toInt(&ok);
 
-                if (ok)
-                {
+                if (ok) {
                     if ((RemainCount <= 0) || (RemainCount > ProjectMigrationFiles.count()))
                         qStdout() << "Input must be between 1 and " << ProjectMigrationFiles.count() << endl;
                     else
                         break;
-                }
-                else
+                } else
                     qStdout() << "Invalid input " << value << endl;
             }
         }
@@ -137,8 +123,7 @@ bool cmdMark::run()
     qInfo() << LINE_SPLITTER;
 
     int idx = 1;
-    foreach (auto ProjectMigrationFile, ProjectMigrationFiles)
-    {
+    foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
         qStdout()
                 << QString::number(idx++).rightJustified(4)
                 << ") "

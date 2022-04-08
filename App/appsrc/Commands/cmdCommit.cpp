@@ -27,8 +27,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdCommit::cmdCommit()
-{
-}
+{ ; }
 
 void cmdCommit::help()
 {
@@ -48,8 +47,7 @@ bool cmdCommit::run()
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
-    if (ProjectMigrationFiles.isEmpty())
-    {
+    if (ProjectMigrationFiles.isEmpty()) {
         qInfo() << "nothing to commit";
         return true;
     }
@@ -61,13 +59,9 @@ bool cmdCommit::run()
     qint32 RemainCount = 0;
 
     if (Configs::All.value())
-    {
         RemainCount = ProjectMigrationFiles.count();
-    }
-    else
-    {
-        while (true)
-        {
+    else {
+        while (true) {
             qStdout()
                     << "Which migrations do you want to run?"
                     << " "
@@ -75,16 +69,13 @@ bool cmdCommit::run()
                     << " "
                     ;
 
-            if (ProjectMigrationFiles.count() == 1)
-            {
+            if (ProjectMigrationFiles.count() == 1) {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << reverse(" = ")
                         << reverse("[") << reverse(bold("1")) << reverse("]")
                         ;
-            }
-            else
-            {
+            } else {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << " "
@@ -104,24 +95,19 @@ bool cmdCommit::run()
             if (value == "c")
                 return true;
 
-            if (value == "a")
-            {
+            if (value == "a") {
                 RemainCount = ProjectMigrationFiles.count();
                 break;
-            }
-            else
-            {
+            } else {
                 bool ok = false;
                 RemainCount = value.toInt(&ok);
 
-                if (ok)
-                {
+                if (ok) {
                     if ((RemainCount <= 0) || (RemainCount > ProjectMigrationFiles.count()))
                         qStdout() << "Input must be between 1 and " << ProjectMigrationFiles.count() << endl;
                     else
                         break;
-                }
-                else
+                } else
                     qStdout() << "Invalid input " << value << endl;
             }
         }
@@ -131,8 +117,7 @@ bool cmdCommit::run()
     qInfo() << LINE_SPLITTER;
 
     int idx = 1;
-    foreach (auto ProjectMigrationFile, ProjectMigrationFiles)
-    {
+    foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
         qStdout()
                 << QString::number(idx++).rightJustified(4)
                 << ") "

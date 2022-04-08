@@ -29,9 +29,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdNewDB::cmdNewDB()
-{
-
-}
+{ ; }
 
 void cmdNewDB::help()
 {
@@ -54,8 +52,7 @@ bool cmdNewDB::run()
     qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
 
     QFile File(FullFileName);
-    if (File.open(QFile::WriteOnly | QFile::Text) == false)
-    {
+    if (File.open(QFile::WriteOnly | QFile::Text) == false) {
         qInfo() << "Could not create new migration file.";
         return true;
     }
@@ -73,11 +70,13 @@ bool cmdNewDB::run()
     qInfo().noquote() << "Empty migration file created successfully.";
 
     qint64 PID;
+
     if (QProcess::startDetached(Configs::DefaultEditor.value(),
                                 QStringList() << FullFileName,
                                 {},
                                 &PID) == false)
         throw exTargomanBase("Execution of default editor failed");
+
     while (kill(PID, 0) == 0) { usleep(1); }
 
     return true;

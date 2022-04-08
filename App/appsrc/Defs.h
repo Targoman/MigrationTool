@@ -73,32 +73,27 @@ struct stuDBServer
 
     stuDBServer(const QString &_basePath) :
         BasePath(_basePath),
-        Name(
-            _basePath + "Name",
-            "",
-            ""
-        ),
-        Host(
-            _basePath + "Host",
-            "",
-            ""
-        ),
-        Port(
-            _basePath + "Port",
-            "",
-            ""
-        ),
-        UserName(
-            _basePath + "UserName",
-            "",
-            ""
-        ),
-        Password(
-            _basePath + "Password",
-            "",
-            ""
-        )
-    {}
+        Name(_basePath + "Name",
+             "",
+             ""
+             ),
+        Host(_basePath + "Host",
+             "",
+             ""
+             ),
+        Port(_basePath + "Port",
+             "",
+             ""
+             ),
+        UserName(_basePath + "UserName",
+                 "",
+                 ""
+                 ),
+        Password(_basePath + "Password",
+                 "",
+                 ""
+                 )
+    { ; }
 
     void setFromVariant(const QVariant &_value)
     {
@@ -139,15 +134,13 @@ struct stuRunningMode
 
     stuRunningMode(const QString &_basePath) :
         BasePath(_basePath),
-        Name(
-            _basePath + "Name",
-            "Name of the running mode"
-        ),
-        DBServers(
-            _basePath + "DBServers",
-            "Database servers"
-        )
-    {}
+        Name(_basePath + "Name",
+             "Name of the running mode"
+             ),
+        DBServers(_basePath + "DBServers",
+                  "Database servers"
+                  )
+    { ; }
 
     void setFromVariant(const QVariant &_value)
     {
@@ -185,31 +178,26 @@ struct stuProject
 
     stuProject(const QString &_basePath) :
         BasePath(_basePath),
-        Name(
-            _basePath + "Name",
-            "Name of the project. will be used in migrations path : ./migrations/{Name}/...",
-            ""
-        ),
-        AllowDB(
-            _basePath + "AllowDB",
-            "",
-            false
-        ),
-        AllowLocal(
-            _basePath + "AllowLocal",
-            "",
-            false
-        ),
-        ApplyToAllProjects(
-            _basePath + "ApplyToAllProjects",
-            "Apply to all of non-apply-to-all projects",
-            false
-        ),
-        DBDestinations(
-            _basePath + "DBDestinations",
-            "Database destinations. Not used if ApplyToAllProjects=true"
-        )
-    {}
+        Name(_basePath + "Name",
+             "Name of the project. will be used in migrations path : ./migrations/{Name}/...",
+             ""
+             ),
+        AllowDB(_basePath + "AllowDB",
+                "",
+                false
+                ),
+        AllowLocal(_basePath + "AllowLocal",
+                   "",
+                   false
+                   ),
+        ApplyToAllProjects(_basePath + "ApplyToAllProjects",
+                           "Apply to all of non-apply-to-all projects",
+                           false
+                           ),
+        DBDestinations(_basePath + "DBDestinations",
+                       "Database destinations. Not used if ApplyToAllProjects=true"
+                       )
+    { ; }
 
     void setFromVariant(const QVariant &_value)
     {
@@ -279,8 +267,7 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items)
-    {
+    foreach(auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 
@@ -300,8 +287,7 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items)
-    {
+    foreach(auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 
@@ -321,8 +307,7 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items)
-    {
+    foreach(auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 

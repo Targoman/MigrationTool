@@ -29,8 +29,7 @@ namespace Targoman::Migrate::Commands {
 bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile);
 
 cmdCheckBC::cmdCheckBC()
-{
-}
+{ ; }
 
 void cmdCheckBC::help()
 {
@@ -49,8 +48,7 @@ bool cmdCheckBC::run()
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
-    if (ProjectMigrationFiles.isEmpty())
-    {
+    if (ProjectMigrationFiles.isEmpty()) {
         qInfo() << "nothing to check";
         return true;
     }
@@ -60,8 +58,8 @@ bool cmdCheckBC::run()
     MigrationFileInfoMap MigrationFiles;
     for (ProjectMigrationFileInfoMap::const_iterator it = ProjectMigrationFiles.constBegin();
          it != ProjectMigrationFiles.constEnd();
-         it++)
-    {
+         it++
+        ) {
         const stuProjectMigrationFileInfo &val = it.value();
 
         QString MigrationName = val.FileName + ":" + val.Scope;
@@ -87,13 +85,9 @@ bool cmdCheckBC::run()
     qint32 RemainCount = 0;
 
     if (Configs::All.value())
-    {
         RemainCount = MigrationFiles.count();
-    }
-    else
-    {
-        while (true)
-        {
+    else {
+        while (true) {
             qStdout()
                     << "Which migrations do you want to check?"
                     << " "
@@ -101,16 +95,13 @@ bool cmdCheckBC::run()
                     << " "
                     ;
 
-            if (MigrationFiles.count() == 1)
-            {
+            if (MigrationFiles.count() == 1) {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << reverse(" = ")
                         << reverse("[") << reverse(bold("1")) << reverse("]")
                         ;
-            }
-            else
-            {
+            } else {
                 qStdout()
                         << reverse("[") << reverse(bold("a")) << reverse("ll]")
                         << " "
@@ -130,24 +121,19 @@ bool cmdCheckBC::run()
             if (value == "c")
                 return true;
 
-            if (value == "a")
-            {
+            if (value == "a") {
                 RemainCount = MigrationFiles.count();
                 break;
-            }
-            else
-            {
+            } else {
                 bool ok = false;
                 RemainCount = value.toInt(&ok);
 
-                if (ok)
-                {
+                if (ok) {
                     if ((RemainCount <= 0) || (RemainCount > MigrationFiles.count()))
                         qStdout() << "Input must be between 1 and " << MigrationFiles.count() << endl;
                     else
                         break;
-                }
-                else
+                } else
                     qStdout() << "Invalid input " << value << endl;
             }
         }
@@ -160,8 +146,7 @@ bool cmdCheckBC::run()
             ;
 
     int idx = 1;
-    foreach (auto MigrationFile, MigrationFiles)
-    {
+    foreach (auto MigrationFile, MigrationFiles) {
         qStdout()
                 << QString::number(idx++).rightJustified(4)
                 << ") "
@@ -176,8 +161,7 @@ bool cmdCheckBC::run()
         bool result = IsMigrationFileBackwardCompatible(MigrationFile);
         qStdout() << (result ? "Yes (Backward Compatible)" : "No (Backward Incompatible)") << endl;
 
-        if (result == false)
-        {
+        if (result == false) {
             qStdout() << "[STATUS:BREAKED]" << endl;
             return true;
         }
@@ -195,8 +179,7 @@ bool cmdCheckBC::run()
 
 bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile)
 {
-    if (_migrationFile.Scope == "db")
-    {
+    if (_migrationFile.Scope == "db") {
         QFile File(_migrationFile.FullFileName);
 
         if (!File.open(QFile::ReadOnly | QFile::Text))
@@ -206,13 +189,10 @@ bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFil
         QString Qry = Stream.readAll().trimmed();
         File.close();
 
-        if (Qry.isEmpty() == false)
-        {
+        if (Qry.isEmpty() == false) {
             QString Delimiter = ";";
-            while (Qry.isEmpty() == false)
-            {
-                if (Qry.startsWith("delimiter ", Qt::CaseInsensitive))
-                {
+            while (Qry.isEmpty() == false) {
+                if (Qry.startsWith("delimiter ", Qt::CaseInsensitive)) {
                     Qry.remove(0, QString("delimiter ").length());
 
                     int idx = Qry.indexOf("\n");
@@ -220,36 +200,28 @@ bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFil
                         break; //new delimiter without new line mark: nothing to run
 
                     if (idx == 0)
-                    {
                         Qry.remove(0, 1);
-                    }
-                    else
-                    {
+                    else {
                         Delimiter = Qry.left(idx).trimmed();
                         Qry.remove(0, idx + 1);
 
                         if (Delimiter.isEmpty())
                             throw exMigrationTool("delimiter is empty");
                     }
-                }
-                else
-                {
+                } else {
                     int idx = Qry.indexOf(Delimiter);
 
                     QString SmallQry;
-                    if (idx >= 0)
-                    {
+
+                    if (idx >= 0) {
                         SmallQry = Qry.left(idx).trimmed();
                         Qry.remove(0, idx + Delimiter.length());
-                    }
-                    else
-                    {
+                    } else {
                         SmallQry = Qry.trimmed();
                         Qry = "";
                     }
 
-                    if (SmallQry.isEmpty() == false)
-                    {
+                    if (SmallQry.isEmpty() == false) {
 //                            SmallQry += ";";
 //                        qDebug() << "\t\tChecking query" << SmallQry.left(50) << "...";
 
@@ -262,16 +234,13 @@ bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFil
                 Qry = Qry.trimmed();
             }
         }
-    } //db
-    else //local
-    {
+    } else { //local
         QFileInfo FileInfo(_migrationFile.FullFileName);
 
         if (FileInfo.exists() == false)
             throw exTargomanBase("File not found");
 
-        if (FileInfo.size() > 0)
-        {
+        if (FileInfo.size() > 0) {
             if (FileInfo.isExecutable() == false)
                 QFile::setPermissions(
                             _migrationFile.FullFileName,
