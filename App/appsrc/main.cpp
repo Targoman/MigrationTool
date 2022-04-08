@@ -40,8 +40,7 @@ using namespace Targoman::Migrate;
 
 int main(int _argc, char *_argv[])
 {
-    try
-    {
+    try {
         QCoreApplication App(_argc, _argv);
 
         qInfo().noquote() << "Migration Tool. Version" << TARGOMAN_M2STR(PROJ_VERSION);
@@ -57,17 +56,11 @@ int main(int _argc, char *_argv[])
         QTimer::singleShot(10, new CommandManager, SLOT(slotExecute()));
 
         return App.exec();
-    }
-    catch(exTargomanBase &exp)
-    {
+    } catch(exTargomanBase &exp) {
         TargomanError(exp.what());
-    }
-    catch (std::exception &exp)
-    {
+    } catch (std::exception &exp) {
         TargomanError(exp.what());
-    }
-    catch (...)
-    {
+    } catch (...) {
         TargomanError("FATAL Unrecognized exception");
     }
 

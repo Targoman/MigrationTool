@@ -27,8 +27,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdNewDBDiff::cmdNewDBDiff()
-{
-}
+{ ; }
 
 void cmdNewDBDiff::help()
 {

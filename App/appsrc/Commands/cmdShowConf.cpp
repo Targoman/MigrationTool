@@ -27,8 +27,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdShowConf::cmdShowConf()
-{
-}
+{ ; }
 
 void cmdShowConf::help()
 {

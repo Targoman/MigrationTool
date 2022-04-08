@@ -27,8 +27,7 @@
 namespace Targoman::Migrate::Commands {
 
 cmdHistory::cmdHistory()
-{
-}
+{ ; }
 
 void cmdHistory::help()
 {
@@ -49,17 +48,16 @@ bool cmdHistory::run()
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     for (MigrationHistoryMap::const_iterator it = MigrationHistories.constBegin();
          it != MigrationHistories.constEnd();
-         it++)
-    {
+         it++
+        ) {
         QString key = it.key();
         const stuMigrationHistory &MigrationHistoryItem = it.value();
 
-        if (MigrationHistoryItem.AppliedItems.isEmpty() == false)
-        {
+        if (MigrationHistoryItem.AppliedItems.isEmpty() == false) {
             for (QMap<QString, stuHistoryAppliedItem>::const_iterator it = MigrationHistoryItem.AppliedItems.constBegin();
                  it != MigrationHistoryItem.AppliedItems.constEnd();
-                 it++)
-            {
+                 it++
+                ) {
                 QString key = it.key();
                 const stuHistoryAppliedItem &MigrationHistoryAppliedItem = it.value();
 
