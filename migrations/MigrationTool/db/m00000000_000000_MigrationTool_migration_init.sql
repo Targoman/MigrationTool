@@ -1,4 +1,5 @@
 /* Migration File: m00000000_000000_MigrationTool_migration_init.sql */
+/* CAUTION: don't forget to use {{dbprefix}} for schemas */
 
 USE `{{dbprefix}}{{Schema}}`;
 

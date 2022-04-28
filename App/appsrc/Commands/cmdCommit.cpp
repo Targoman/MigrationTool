@@ -26,15 +26,12 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdCommit::cmdCommit()
-{ ; }
+cmdCommit::cmdCommit() { ; }
 
-void cmdCommit::help()
-{
+void cmdCommit::help() {
 }
 
-bool cmdCommit::run()
-{
+bool cmdCommit::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";

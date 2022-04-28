@@ -26,15 +26,12 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdShowConf::cmdShowConf()
-{ ; }
+cmdShowConf::cmdShowConf() { ; }
 
-void cmdShowConf::help()
-{
+void cmdShowConf::help() {
 }
 
-bool cmdShowConf::run()
-{
+bool cmdShowConf::run() {
 //    if (Configs::Sources.size() == 0)
     {
         qInfo() << "nothing to show";

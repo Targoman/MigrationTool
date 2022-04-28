@@ -51,6 +51,8 @@ struct Configs
 
     static tmplConfigurable<QString>                    DefaultEditor;
 
+    static tmplConfigurable<bool>                       AutoGitAdd;
+
     //--------------------------
     struct stuRunningParameters
     {

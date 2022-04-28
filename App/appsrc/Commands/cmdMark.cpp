@@ -26,11 +26,9 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdMark::cmdMark()
-{ ; }
+cmdMark::cmdMark() { ; }
 
-void cmdMark::help()
-{
+void cmdMark::help() {
     qInfo() << "Modifying migration history without actually run migrations";
     //        qInfo() << _line_splitter;
     //        qInfo() << "./MigrationTool" << "Mark 20220101_010203                              : add all unapplied migrations upto 20220101_010203";
@@ -39,8 +37,7 @@ void cmdMark::help()
     //        qInfo() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration.sh : add all unapplied migrations upto 20220101_010203";
 }
 
-bool cmdMark::run()
-{
+bool cmdMark::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";
