@@ -26,11 +26,9 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdHistory::cmdHistory()
-{ ; }
+cmdHistory::cmdHistory() { ; }
 
-void cmdHistory::help()
-{
+void cmdHistory::help() {
     qInfo() << "List of applied migrations";
     //        qInfo() << _line_splitter;
     //        qInfo() << "./MigrationTool" << "History     : showing the first 10 applied migrations";
@@ -38,8 +36,7 @@ void cmdHistory::help()
     //        qInfo() << "./MigrationTool" << "History all : showing all applied migrations";
 }
 
-bool cmdHistory::run()
-{
+bool cmdHistory::run() {
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
 //    qDebug() << "** MigrationHistories ******************************";

@@ -26,11 +26,9 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdList::cmdList()
-{ ; }
+cmdList::cmdList() { ; }
 
-void cmdList::help()
-{
+void cmdList::help() {
     qInfo() << "List of unapplied migrations";
     //        qInfo() << _line_splitter;
     //        qInfo() << "./MigrationTool" << "List     : showing the first 10 new migrations";
@@ -38,8 +36,7 @@ void cmdList::help()
     //        qInfo() << "./MigrationTool" << "List all : showing all new migrations";
 }
 
-bool cmdList::run()
-{
+bool cmdList::run() {
     qInfo() << "Unapplied migrations:";
     qInfo() << LINE_SPLITTER;
 

@@ -28,15 +28,12 @@ namespace Targoman::Migrate::Commands {
 
 bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile);
 
-cmdCheckBC::cmdCheckBC()
-{ ; }
+cmdCheckBC::cmdCheckBC() { ; }
 
-void cmdCheckBC::help()
-{
+void cmdCheckBC::help() {
 }
 
-bool cmdCheckBC::run()
-{
+bool cmdCheckBC::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";
@@ -177,8 +174,7 @@ bool cmdCheckBC::run()
     return true;
 }
 
-bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile)
-{
+bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFile) {
     if (_migrationFile.Scope == "db") {
         QFile File(_migrationFile.FullFileName);
 

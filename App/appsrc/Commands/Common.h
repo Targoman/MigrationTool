@@ -44,12 +44,11 @@ enum class enuChooseCreateMigrationScope
 };
 
 inline bool ChooseCreateMigrationProperties(
-        enuChooseCreateMigrationScope _chooseScope,
-        QString &_fileName,
-        QString &_fullFileName,
-        quint32 &_projectIndex
-    )
-{
+    enuChooseCreateMigrationScope _chooseScope,
+    QString &_fileName,
+    QString &_fullFileName,
+    quint32 &_projectIndex
+) {
     QDir BaseFolder(Configs::MigrationsFolderName.value());
     ///TODO: check if dir exists
     BaseFolder.makeAbsolute();
@@ -254,8 +253,7 @@ struct stuMigrationFileInfo {
 //key: MigrationName
 typedef QMap<QString, stuMigrationFileInfo> MigrationFileInfoMap;
 
-inline void dump(MigrationFileInfoMap &_var)
-{
+inline void dump(MigrationFileInfoMap &_var) {
     int maxWidth_Name = QString("File Name").length();
     foreach (auto val, _var) {
         maxWidth_Name = max(maxWidth_Name, val.FileName.length());
@@ -331,8 +329,7 @@ typedef QMap<QString, stuProjectMigrationFileInfo> ProjectMigrationFileInfoMap;
 //{
 //}
 
-inline void dump(ProjectMigrationFileInfoMap &_var, bool _renderForAppliedHistoryItem = false)
-{
+inline void dump(ProjectMigrationFileInfoMap &_var, bool _renderForAppliedHistoryItem = false) {
 //    QStringList Headers = QStringList()
 //        << "File Name"
 //        << "Scope"
@@ -437,8 +434,7 @@ struct stuMigrationHistory {
 //key: Source + Scope
 typedef QMap<QString, stuMigrationHistory> MigrationHistoryMap;
 
-inline void dump(const QMap<QString, stuHistoryAppliedItem> &_var)
-{
+inline void dump(const QMap<QString, stuHistoryAppliedItem> &_var) {
     qDebug().noquote() //.nospace()
             << "    "
             << QString("MigrationName").leftJustified(50)
@@ -465,8 +461,7 @@ inline void dump(const QMap<QString, stuHistoryAppliedItem> &_var)
     }
 }
 
-inline void dump(MigrationHistoryMap &_var)
-{
+inline void dump(MigrationHistoryMap &_var) {
     qDebug().noquote() //.nospace()
             << QString("Project").leftJustified(20)
             << QString("Scope").leftJustified(5)
@@ -499,8 +494,7 @@ inline void dump(MigrationHistoryMap &_var)
     }
 }
 
-inline void dump(QMap<QString, QString> &_var)
-{
+inline void dump(QMap<QString, QString> &_var) {
     for (QMap<QString, QString>::const_iterator it = _var.constBegin();
          it != _var.constEnd();
          it++
@@ -514,8 +508,7 @@ inline void dump(QMap<QString, QString> &_var)
     }
 }
 
-inline void ExtractMigrationFiles(ProjectMigrationFileInfoMap &_migrationFiles)
-{
+inline void ExtractMigrationFiles(ProjectMigrationFileInfoMap &_migrationFiles) {
     QDir BaseFolder(Configs::MigrationsFolderName.value());
     ///TODO: check if dir exists
 
@@ -711,8 +704,7 @@ inline void ExtractMigrationFiles(ProjectMigrationFileInfoMap &_migrationFiles)
     } //for Projects
 }
 
-inline void ExtractMigrationHistories(MigrationHistoryMap &_migrationHistories)
-{
+inline void ExtractMigrationHistories(MigrationHistoryMap &_migrationHistories) {
     QDir BaseFolder(Configs::MigrationsFolderName.value());
     ///TODO: check if dir exists
 
@@ -880,10 +872,9 @@ inline void ExtractMigrationHistories(MigrationHistoryMap &_migrationHistories)
 }
 
 inline void RemoveAppliedFromList(
-        ProjectMigrationFileInfoMap &_migrationFiles,
-        const MigrationHistoryMap &_migrationHistories
-    )
-{
+    ProjectMigrationFileInfoMap &_migrationFiles,
+    const MigrationHistoryMap &_migrationHistories
+) {
     if (_migrationFiles.isEmpty() || _migrationHistories.isEmpty())
         return;
 
@@ -930,8 +921,7 @@ inline void RemoveAppliedFromList(
     }
 }
 
-inline void CreateDBIfNotExists(const QString &_projectName, QString &_dbServerName)
-{
+inline void CreateDBIfNotExists(const QString &_projectName, QString &_dbServerName) {
     qDebug() << "CreateDBIfNotExists" << Configs::DBPrefix.value() << _projectName << _dbServerName;
     qDebug() << Configs::RunningParameters.NonExistsProjectDBConnectionStrings.keys();
 
@@ -964,8 +954,7 @@ inline void CreateDBIfNotExists(const QString &_projectName, QString &_dbServerN
     clsDAC::setConnectionString(ConnStringWithSchema, ProjectDestinationKey);
 }
 
-inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
-{
+inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile) {
     if (_migrationFile.Scope == "db") {
         QStringList Parts = _migrationFile.Project.split('@');
         QString Schema = Parts[0];
@@ -1024,8 +1013,7 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
     }
 }
 
-inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, bool _run = true)
-{
+inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, bool _run = true) {
     if (_migrationFile.Scope == "db") {
         QStringList Parts = _migrationFile.Project.split('@');
         QString Schema = Parts[0];

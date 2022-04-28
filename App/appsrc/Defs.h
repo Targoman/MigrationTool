@@ -232,42 +232,39 @@ struct stuProject
 
 //////////////////////////////////////////////////////////////////////
 
-inline QString bold(const QString &_s)
-{
+inline QString bold(const QString &_s) {
     return QString("\x1b[1m%1\x1b[0m").arg(_s);
 }
 
-inline QString reverse(const QString &_s)
-{
+inline QString reverse(const QString &_s) {
     return QString("\x1b[7m%1\x1b[0m").arg(_s);
 }
 
-inline QTextStream& qStdout()
-{
+inline QTextStream& qStdout() {
     static QTextStream rOUT{stdout};
     return rOUT;
 }
-inline QTextStream& qStdIn()
-{
+inline QTextStream& qStdIn() {
     static QTextStream rIN{stdin};
     return rIN;
 }
 
 } // namespace Targoman::Migrate
 
-template <> inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::setFromVariant(const QVariant& _value)
-{
+template <>
+inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
     qDebug() << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
     ///TODO: implement this
 }
-template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::toVariant() const
+template <>
+inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::toVariant() const
 {
     qDebug() << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items) {
+    foreach (auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 
@@ -275,19 +272,20 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
 
     return ret;
 }
-template <> inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::setFromVariant(const QVariant& _value)
-{
+template <>
+inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
     qDebug() << __FUNCTION__ << __LINE__ << "[] setFromVariant" << _value;
     ///TODO: implement this
 }
-template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::toVariant() const
+template <>
+inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::toVariant() const
 {
     qDebug() << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items) {
+    foreach (auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 
@@ -295,19 +293,20 @@ template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArr
 
     return ret;
 }
-template <> inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::setFromVariant(const QVariant& _value)
-{
+template <>
+inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
     qDebug() << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
     ///TODO: implement this
 }
-template <> inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::toVariant() const
+template <>
+inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::toVariant() const
 {
     qDebug() << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
-    foreach(auto Item, this->Items) {
+    foreach (auto Item, this->Items) {
         ret.append(Item.toVariant());
     }
 

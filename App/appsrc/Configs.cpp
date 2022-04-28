@@ -200,10 +200,20 @@ tmplConfigurable<QString> Configs::DefaultEditor(
     enuConfigSource::Arg | enuConfigSource::File
 );
 
+tmplConfigurable<bool> Configs::AutoGitAdd(
+    Configs::makeConfig("AutoGitAdd"),
+    "Auto add new files to the git",
+    false,
+    ReturnTrueCrossValidator(),
+    "",
+    "",
+    "git-add",
+    enuConfigSource::Arg | enuConfigSource::File
+);
+
 Configs::stuRunningParameters Configs::RunningParameters;
 
-void Configs::FillRunningParameters()
-{
+void Configs::FillRunningParameters() {
     //1: find RunningMode:
     if (Configs::ActiveRunningMode.value().isEmpty())
         throw exTargomanBase("Active Running Mode not defined");

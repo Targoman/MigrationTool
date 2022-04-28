@@ -38,8 +38,7 @@ static const char* LicenseStr =
 using namespace Targoman::Common;
 using namespace Targoman::Migrate;
 
-int main(int _argc, char *_argv[])
-{
+int main(int _argc, char *_argv[]) {
     try {
         QCoreApplication App(_argc, _argv);
 

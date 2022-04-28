@@ -43,11 +43,9 @@ namespace Targoman::Migrate {
 
 using namespace Commands;
 
-CommandManager::CommandManager(QObject *parent) : QObject(parent)
-{ ; }
+CommandManager::CommandManager(QObject *parent) : QObject(parent) { ; }
 
-void CommandManager::slotExecute()
-{
+void CommandManager::slotExecute() {
     try {
         Configs::FillRunningParameters();
 
