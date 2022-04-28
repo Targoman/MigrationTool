@@ -1128,6 +1128,27 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
     }
 }
 
+inline QString GetSymlinkTarget(QString _path) {
+
+    _path = _path.trimmed();
+    if (_path.right(1) == "/")
+        _path = _path.left(_path.length() - 1);
+
+    QStringList Parts = _path.split("/");
+
+    QString Result = "";
+
+    foreach (QString Part, Parts) {
+        QString Item = QFile::symLinkTarget((Result.isEmpty() ? "" : Result + "/") + Part);
+        if (Item.isEmpty())
+            Result = Result + "/" + Part;
+        else
+            Result = Item;
+    }
+
+    return Result;
+}
+
 } // namespace Targoman::Migrate::Commands
 
 #endif // MIGRATION_TOOL_COMMON_H

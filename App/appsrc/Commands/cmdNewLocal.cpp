@@ -52,9 +52,7 @@ bool cmdNewLocal::run() {
         return true;
     }
 
-    QFileInfo info(FullFileName);
-    if (info.isSymLink())
-        FullFileName = info.symLinkTarget();
+    FullFileName = GetSymlinkTarget(FullFileName);
 
     qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
 
@@ -94,9 +92,11 @@ fi
 
     //----
     if (Configs::AutoGitAdd.value()) {
-        QProcess MigrationProcess;
-        MigrationProcess.start(QString("git add %1").arg(FullFileName));
-        if (MigrationProcess.waitForFinished())
+        QProcess GitAddProcess;
+        GitAddProcess.start("git",
+                            QStringList() << "add" << FullFileName
+                            );
+        if (GitAddProcess.waitForFinished())
             qInfo().noquote() << "File added to git";
         else
             qInfo().noquote() << "Could not add file to git";
