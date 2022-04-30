@@ -26,16 +26,12 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdNewDBDiff::cmdNewDBDiff()
-{
+cmdNewDBDiff::cmdNewDBDiff() { ; }
+
+void cmdNewDBDiff::help() {
 }
 
-void cmdNewDBDiff::help()
-{
-}
-
-bool cmdNewDBDiff::run()
-{
+bool cmdNewDBDiff::run() {
     QString FileName;
     QString FullFileName;
     quint32 ProjectIndex;

@@ -30,7 +30,7 @@ namespace Targoman::Migrate {
 
 struct Configs
 {
-    static inline QString makeConfig(const QString& _name) { return "/App/" + _name; }
+    static inline QString makeConfig(const QString &_name) { return "/App/" + _name; }
 
     static tmplConfigurable<enuAppCommand::Type>        Command;
     static tmplConfigurable<QString>                    MigrationsFolderName;
@@ -50,6 +50,8 @@ struct Configs
     static tmplConfigurable<bool>                       All;
 
     static tmplConfigurable<QString>                    DefaultEditor;
+
+    static tmplConfigurable<bool>                       AutoGitAdd;
 
     //--------------------------
     struct stuRunningParameters

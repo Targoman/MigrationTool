@@ -35,6 +35,7 @@
 #include "Commands/cmdList.h"
 #include "Commands/cmdMark.h"
 #include "Commands/cmdCommit.h"
+#include "Commands/cmdCheckBC.h"
 
 using namespace Targoman::Common;
 
@@ -42,19 +43,15 @@ namespace Targoman::Migrate {
 
 using namespace Commands;
 
-CommandManager::CommandManager(QObject *parent) : QObject(parent)
-{}
+CommandManager::CommandManager(QObject *parent) : QObject(parent) { ; }
 
-void CommandManager::slotExecute()
-{
-    try
-    {
+void CommandManager::slotExecute() {
+    try {
         Configs::FillRunningParameters();
 
         intfCommand *Command = nullptr;
 
-        switch (Configs::Command.value())
-        {
+        switch (Configs::Command.value()) {
             case enuAppCommand::showconf:
                 Command = cmdShowConf::instancePtr();
                 break;
@@ -87,6 +84,10 @@ void CommandManager::slotExecute()
                 Command = cmdCommit::instancePtr();
                 break;
 
+            case enuAppCommand::checkbc:
+                Command = cmdCheckBC::instancePtr();
+                break;
+
 //            case enuAppCommand::rollback:
 //                Command = cmdRollback::instancePtr();
 //                break;
@@ -106,21 +107,19 @@ void CommandManager::slotExecute()
         if (Command == nullptr)
             throw exMigrationTool("Invalid command");
 
-        if (false) //SHOW_HELP
-        {
+        if (false) { //SHOW_HELP
             Command->help();
             QCoreApplication::exit(0);
             return;
         }
 
         //---------------------------------
-        if (Command->needDB())
-        {
+        if (Command->needDB()) {
             //register default conn string
             for (QMap<QString, QString>::const_iterator it = Configs::RunningParameters.DBServersDefaultConnectionString.constBegin();
                  it != Configs::RunningParameters.DBServersDefaultConnectionString.constEnd();
-                 it++)
-            {
+                 it++
+                ) {
                 QString DBServerName = it.key();
                 QString ConnStringWith = it.value();
 
@@ -134,8 +133,8 @@ void CommandManager::slotExecute()
             //register project's conn string
             for (QMap<QString, QString>::const_iterator it = Configs::RunningParameters.ProjectDBConnectionStrings.constBegin();
                  it != Configs::RunningParameters.ProjectDBConnectionStrings.constEnd();
-                 it++)
-            {
+                 it++
+                ) {
                 QString ProjectDestinationKey = it.key();
                 QString ConnStringWithSchema = it.value();
 
@@ -158,13 +157,10 @@ void CommandManager::slotExecute()
                                                               Configs::DBPrefix.value() + SchemaName
                                                           });
 
-                if (ResultTable.toJson(true).object().isEmpty())
-                {
+                if (ResultTable.toJson(true).object().isEmpty()) {
                     qDebug() << "database" << Configs::DBPrefix.value() + SchemaName << "not exists in" << DBServerName;
                     Configs::RunningParameters.NonExistsProjectDBConnectionStrings[ProjectDestinationKey] = ConnStringWithSchema;
-                }
-                else
-                {
+                } else {
                     qDebug() << "setConnectionString" << ProjectDestinationKey << "=" << ConnStringWithSchema;
                     clsDAC::setConnectionString(ConnStringWithSchema, ProjectDestinationKey);
                 }
@@ -175,9 +171,7 @@ void CommandManager::slotExecute()
         if (Command->run())
             QCoreApplication::exit(0);
         //else: async
-    }
-    catch(exTargomanBase &exp)
-    {
+    } catch(exTargomanBase &exp) {
         TargomanLogError(exp.what());
         QCoreApplication::exit(-1);
         return;

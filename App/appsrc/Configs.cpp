@@ -180,7 +180,7 @@ tmplConfigurable<bool> Configs::LocalOnly(
 
 tmplConfigurable<bool> Configs::All(
     Configs::makeConfig("All"),
-    "Turn All switch to on for commit and mark commands",
+    "Turn All switch to on for (commit/mark/checkbc) commands",
     false,
     ReturnTrueCrossValidator(),
     "",
@@ -200,22 +200,30 @@ tmplConfigurable<QString> Configs::DefaultEditor(
     enuConfigSource::Arg | enuConfigSource::File
 );
 
+tmplConfigurable<bool> Configs::AutoGitAdd(
+    Configs::makeConfig("AutoGitAdd"),
+    "Auto add new files to the git",
+    false,
+    ReturnTrueCrossValidator(),
+    "",
+    "",
+    "git-add",
+    enuConfigSource::Arg | enuConfigSource::File
+);
+
 Configs::stuRunningParameters Configs::RunningParameters;
 
-void Configs::FillRunningParameters()
-{
+void Configs::FillRunningParameters() {
     //1: find RunningMode:
     if (Configs::ActiveRunningMode.value().isEmpty())
         throw exTargomanBase("Active Running Mode not defined");
 
     int RunningModeIndex = -1;
 
-    for (size_t idxRunningModes=0; idxRunningModes<Configs::RunningModes.size(); idxRunningModes++)
-    {
+    for (size_t idxRunningModes=0; idxRunningModes<Configs::RunningModes.size(); idxRunningModes++) {
         stuRunningMode &RunningMode = Configs::RunningModes[idxRunningModes];
 
-        if (RunningMode.Name.value() == Configs::ActiveRunningMode.value())
-        {
+        if (RunningMode.Name.value() == Configs::ActiveRunningMode.value()) {
             RunningModeIndex = idxRunningModes;
             break;
         }
@@ -226,23 +234,18 @@ void Configs::FillRunningParameters()
 
     Configs::RunningParameters.RunningModeDBServers = Configs::RunningModes[RunningModeIndex].DBServers.value();
 
-    if (Configs::RunningParameters.RunningModeDBServers.isEmpty() == false)
-    {
+    if (Configs::RunningParameters.RunningModeDBServers.isEmpty() == false) {
         //2: find DBServers:
         quint32 dbIdx = 0;
-        for (size_t idxDBServers=0; idxDBServers<Configs::DBServers.size(); idxDBServers++)
-        {
+        for (size_t idxDBServers=0; idxDBServers<Configs::DBServers.size(); idxDBServers++) {
             stuDBServer &DBServer = Configs::DBServers[idxDBServers];
 
-            foreach (QString DBServerName, Configs::RunningParameters.RunningModeDBServers)
-            {
-                if (DBServerName == DBServer.Name.value())
-                {
+            foreach (QString DBServerName, Configs::RunningParameters.RunningModeDBServers) {
+                if (DBServerName == DBServer.Name.value()) {
                     bool DBServerHasProjects = false;
 
                     //projects
-                    for (size_t idxProjects=0; idxProjects<Configs::Projects.size(); idxProjects++)
-                    {
+                    for (size_t idxProjects=0; idxProjects<Configs::Projects.size(); idxProjects++) {
                         stuProject &Project = Configs::Projects[idxProjects];
 
                         if ((Configs::Project.value().isEmpty() == false)
@@ -256,8 +259,7 @@ void Configs::FillRunningParameters()
                         if (Project.AllowDB.value()
                                 && (Project.DBDestinations.value().isEmpty() == false)
                                 && Project.DBDestinations.value().contains(DBServerName)
-                            )
-                        {
+                            ) {
 //                            qDebug() << "found";
                             DBServerHasProjects = true;
 
@@ -285,8 +287,7 @@ void Configs::FillRunningParameters()
                     }
 
                     //add default connection string for dbserver
-                    if (DBServerHasProjects)
-                    {
+                    if (DBServerHasProjects) {
                         Configs::RunningParameters.DBServersDefaultConnectionString[DBServerName] = QString("HOST=%1;PORT=%2;USER=%3;PASSWORD=%4;")
                                                                                               .arg(DBServer.Host.value())
                                                                                               .arg(DBServer.Port.value())

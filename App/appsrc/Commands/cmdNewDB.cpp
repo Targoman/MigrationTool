@@ -28,17 +28,12 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdNewDB::cmdNewDB()
-{
+cmdNewDB::cmdNewDB() { ; }
 
+void cmdNewDB::help() {
 }
 
-void cmdNewDB::help()
-{
-}
-
-bool cmdNewDB::run()
-{
+bool cmdNewDB::run() {
     QString FileName;
     QString FullFileName;
     quint32 ProjectIndex;
@@ -51,34 +46,45 @@ bool cmdNewDB::run()
                 ) == false)
         return true;
 
-    qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
-
     QFile File(FullFileName);
-    if (File.open(QFile::WriteOnly | QFile::Text) == false)
-    {
+    if (File.open(QFile::WriteOnly | QFile::Text) == false) {
         qInfo() << "Could not create new migration file.";
         return true;
     }
 
+    FullFileName = GetSymlinkTarget(FullFileName);
+
+    qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
+
     QTextStream writer(&File);
-    writer
-        << "/* Migration File: "
-        << FileName
-        << " */"
-        << endl
-        << endl
-        ;
+    writer << "/* Migration File: " << FileName << " */" << endl
+           << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
+           << endl;
     File.close();
 
     qInfo().noquote() << "Empty migration file created successfully.";
 
     qint64 PID;
+
     if (QProcess::startDetached(Configs::DefaultEditor.value(),
                                 QStringList() << FullFileName,
                                 {},
                                 &PID) == false)
         throw exTargomanBase("Execution of default editor failed");
+
     while (kill(PID, 0) == 0) { usleep(1); }
+
+    //----
+    if (Configs::AutoGitAdd.value()) {
+        QProcess GitAddProcess;
+        GitAddProcess.start("git",
+                            QStringList() << "add" << FullFileName
+                            );
+        if (GitAddProcess.waitForFinished())
+            qInfo().noquote() << "File added to git";
+        else
+            qInfo().noquote() << "Could not add file to git";
+    }
 
     return true;
 }

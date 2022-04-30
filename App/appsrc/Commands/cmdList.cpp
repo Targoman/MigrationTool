@@ -26,12 +26,9 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdList::cmdList()
-{
-}
+cmdList::cmdList() { ; }
 
-void cmdList::help()
-{
+void cmdList::help() {
     qInfo() << "List of unapplied migrations";
     //        qInfo() << _line_splitter;
     //        qInfo() << "./MigrationTool" << "List     : showing the first 10 new migrations";
@@ -39,13 +36,12 @@ void cmdList::help()
     //        qInfo() << "./MigrationTool" << "List all : showing all new migrations";
 }
 
-bool cmdList::run()
-{
+bool cmdList::run() {
     qInfo() << "Unapplied migrations:";
     qInfo() << LINE_SPLITTER;
 
-    ProjectMigrationFileInfoMap MigrationFiles;
-    ExtractMigrationFiles(MigrationFiles);
+    ProjectMigrationFileInfoMap ProjectMigrationFiles;
+    ExtractMigrationFiles(ProjectMigrationFiles);
 //    qDebug() << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
@@ -54,9 +50,9 @@ bool cmdList::run()
 //    qDebug() << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
-    RemoveAppliedFromList(MigrationFiles, MigrationHistories);
+    RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 //    qDebug() << "** Unapplied MigrationFiles ******************************";
-    dump(MigrationFiles);
+    dump(ProjectMigrationFiles);
 
     qInfo() << "";
 

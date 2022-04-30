@@ -38,13 +38,11 @@ static const char* LicenseStr =
 using namespace Targoman::Common;
 using namespace Targoman::Migrate;
 
-int main(int _argc, char *_argv[])
-{
-    try
-    {
+int main(int _argc, char *_argv[]) {
+    try {
         QCoreApplication App(_argc, _argv);
 
-        qInfo().noquote() << "Targoman Migrate. version" << TARGOMAN_M2STR(PROJ_VERSION);
+        qInfo().noquote() << "Migration Tool. Version" << TARGOMAN_M2STR(PROJ_VERSION);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdate-time"
@@ -57,17 +55,11 @@ int main(int _argc, char *_argv[])
         QTimer::singleShot(10, new CommandManager, SLOT(slotExecute()));
 
         return App.exec();
-    }
-    catch(exTargomanBase &exp)
-    {
+    } catch(exTargomanBase &exp) {
         TargomanError(exp.what());
-    }
-    catch (std::exception &exp)
-    {
+    } catch (std::exception &exp) {
         TargomanError(exp.what());
-    }
-    catch (...)
-    {
+    } catch (...) {
         TargomanError("FATAL Unrecognized exception");
     }
 

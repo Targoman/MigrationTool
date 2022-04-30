@@ -26,12 +26,9 @@
 
 namespace Targoman::Migrate::Commands {
 
-cmdHistory::cmdHistory()
-{
-}
+cmdHistory::cmdHistory() { ; }
 
-void cmdHistory::help()
-{
+void cmdHistory::help() {
     qInfo() << "List of applied migrations";
     //        qInfo() << _line_splitter;
     //        qInfo() << "./MigrationTool" << "History     : showing the first 10 applied migrations";
@@ -39,27 +36,25 @@ void cmdHistory::help()
     //        qInfo() << "./MigrationTool" << "History all : showing all applied migrations";
 }
 
-bool cmdHistory::run()
-{
+bool cmdHistory::run() {
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
 //    qDebug() << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
-    ProjectMigrationFileInfoMap MigrationFiles;
+    ProjectMigrationFileInfoMap ProjectMigrationFiles;
     for (MigrationHistoryMap::const_iterator it = MigrationHistories.constBegin();
          it != MigrationHistories.constEnd();
-         it++)
-    {
+         it++
+        ) {
         QString key = it.key();
         const stuMigrationHistory &MigrationHistoryItem = it.value();
 
-        if (MigrationHistoryItem.AppliedItems.isEmpty() == false)
-        {
+        if (MigrationHistoryItem.AppliedItems.isEmpty() == false) {
             for (QMap<QString, stuHistoryAppliedItem>::const_iterator it = MigrationHistoryItem.AppliedItems.constBegin();
                  it != MigrationHistoryItem.AppliedItems.constEnd();
-                 it++)
-            {
+                 it++
+                ) {
                 QString key = it.key();
                 const stuHistoryAppliedItem &MigrationHistoryAppliedItem = it.value();
 
@@ -77,14 +72,14 @@ bool cmdHistory::run()
                 );
 
 //                qDebug() << "*" << MigrationName;
-                MigrationFiles.insert(MigrationName, ProjectMigrationFileInfo);
+                ProjectMigrationFiles.insert(MigrationName, ProjectMigrationFileInfo);
             }
         }
     }
 
     qInfo() << "Applied migrations:";
     qInfo() << LINE_SPLITTER;
-    dump(MigrationFiles, true);
+    dump(ProjectMigrationFiles, true);
 
     return true;
 }
