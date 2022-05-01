@@ -171,32 +171,37 @@ struct stuProject
 {
     QString BasePath;
     tmplConfigurable<QString>       Name;
+    tmplConfigurable<QString>       Tags;
     tmplConfigurable<bool>          AllowDB;
     tmplConfigurable<bool>          AllowLocal;
-    tmplConfigurable<bool>          ApplyToAllProjects;
+    tmplConfigurable<QString>       ApplyToTags;
     tmplConfigurable<QStringList>   DBDestinations; //devdb1,db2
 
     stuProject(const QString &_basePath) :
         BasePath(_basePath),
         Name(_basePath + "Name",
-             "Name of the project. will be used in migrations path : ./migrations/{Name}/...",
-             ""
-             ),
+            "Name of the project. will be used in migrations path : ./migrations/{Name}/...",
+            ""
+        ),
+        Tags(_basePath + "Tags",
+            "Comma seperated  tags used for destination of ApplyToTags",
+            ""
+        ),
         AllowDB(_basePath + "AllowDB",
-                "",
-                false
-                ),
+            "",
+            false
+        ),
         AllowLocal(_basePath + "AllowLocal",
-                   "",
-                   false
-                   ),
-        ApplyToAllProjects(_basePath + "ApplyToAllProjects",
-                           "Apply to all of non-apply-to-all projects",
-                           false
-                           ),
+            "",
+            false
+        ),
+        ApplyToTags(_basePath + "ApplyToTags",
+            "Star (*) or comma seperated tags for Apply to all of non-apply-to-all projects",
+            ""
+        ),
         DBDestinations(_basePath + "DBDestinations",
-                       "Database destinations. Not used if ApplyToAllProjects=true"
-                       )
+            "Database comma seperated destinations. Not used if ApplyToTags is not empty"
+        )
     { ; }
 
     void setFromVariant(const QVariant &_value)
@@ -206,9 +211,10 @@ struct stuProject
         QVariantMap map = _value.toMap();
 
         this->Name.setFromVariant(map.value(BasePath + "Name"));
+        this->Tags.setFromVariant(map.value(BasePath + "Tags"));
         this->AllowDB.setFromVariant(map.value(BasePath + "AllowDB"));
         this->AllowLocal.setFromVariant(map.value(BasePath + "AllowLocal"));
-        this->ApplyToAllProjects.setFromVariant(map.value(BasePath + "ApplyToAllProjects"));
+        this->ApplyToTags.setFromVariant(map.value(BasePath + "ApplyToTags"));
         this->DBDestinations.setFromVariant(map.value(BasePath + "DBDestinations"));
     }
 
@@ -219,9 +225,10 @@ struct stuProject
         QVariantMap map;
 
         map.insert(BasePath + "Name", this->Name.toVariant());
+        map.insert(BasePath + "Tags", this->Tags.toVariant());
         map.insert(BasePath + "AllowDB", this->AllowDB.toVariant());
         map.insert(BasePath + "AllowLocal", this->AllowLocal.toVariant());
-        map.insert(BasePath + "ApplyToAllProjects", this->ApplyToAllProjects.toVariant());
+        map.insert(BasePath + "ApplyToTags", this->ApplyToTags.toVariant());
         map.insert(BasePath + "DBDestinations", this->DBDestinations.toVariant().toString().split(','));
 
         qDebug() << map;
