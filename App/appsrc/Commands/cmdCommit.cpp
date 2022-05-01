@@ -53,89 +53,116 @@ bool cmdCommit::run() {
     dump(ProjectMigrationFiles);
     qInfo() << "";
 
-    qint32 RemainCount = 0;
+    if (Configs::MigrationName.value().isEmpty()) {
+        qint32 RemainCount = 0;
 
-    if (Configs::All.value())
-        RemainCount = ProjectMigrationFiles.count();
-    else {
-        while (true) {
-            qStdout()
-                    << "Which migrations do you want to run?"
-                    << " "
-                    << reverse("[") << reverse(bold("c")) << reverse("ancel]")
-                    << " "
-                    ;
-
-            if (ProjectMigrationFiles.count() == 1) {
+        if (Configs::All.value())
+            RemainCount = ProjectMigrationFiles.count();
+        else {
+            while (true) {
                 qStdout()
-                        << reverse("[") << reverse(bold("a")) << reverse("ll]")
-                        << reverse(" = ")
-                        << reverse("[") << reverse(bold("1")) << reverse("]")
-                        ;
-            } else {
-                qStdout()
-                        << reverse("[") << reverse(bold("a")) << reverse("ll]")
+                        << "Which migrations do you want to run?"
                         << " "
-                        << reverse("1 to [") << reverse(bold("1")) << reverse("]")
-                        << reverse(" ... ")
-                        << reverse("[") << reverse(bold(QString::number(ProjectMigrationFiles.count()))) << reverse("]")
+                        << reverse("[") << reverse(bold("c")) << reverse("ancel]")
+                        << " "
                         ;
-            }
-            qStdout() << " ";
-            qStdout().flush();
 
-            QString value = qStdIn().readLine().trimmed();
+                if (ProjectMigrationFiles.count() == 1) {
+                    qStdout()
+                            << reverse("[") << reverse(bold("a")) << reverse("ll]")
+                            << reverse(" = ")
+                            << reverse("[") << reverse(bold("1")) << reverse("]")
+                            ;
+                } else {
+                    qStdout()
+                            << reverse("[") << reverse(bold("a")) << reverse("ll]")
+                            << " "
+                            << reverse("1 to [") << reverse(bold("1")) << reverse("]")
+                            << reverse(" ... ")
+                            << reverse("[") << reverse(bold(QString::number(ProjectMigrationFiles.count()))) << reverse("]")
+                            ;
+                }
+                qStdout() << " ";
+                qStdout().flush();
 
-            if (value.isEmpty())
-                continue;
+                QString value = qStdIn().readLine().trimmed();
 
-            if (value == "c")
-                return true;
+                if (value.isEmpty())
+                    continue;
 
-            if (value == "a") {
-                RemainCount = ProjectMigrationFiles.count();
-                break;
-            } else {
-                bool ok = false;
-                RemainCount = value.toInt(&ok);
+                if (value == "c")
+                    return true;
 
-                if (ok) {
-                    if ((RemainCount <= 0) || (RemainCount > ProjectMigrationFiles.count()))
-                        qStdout() << "Input must be between 1 and " << ProjectMigrationFiles.count() << endl;
-                    else
-                        break;
-                } else
-                    qStdout() << "Invalid input " << value << endl;
+                if (value == "a") {
+                    RemainCount = ProjectMigrationFiles.count();
+                    break;
+                } else {
+                    bool ok = false;
+                    RemainCount = value.toInt(&ok);
+
+                    if (ok) {
+                        if ((RemainCount <= 0) || (RemainCount > ProjectMigrationFiles.count()))
+                            qStdout() << "Input must be between 1 and " << ProjectMigrationFiles.count() << endl;
+                        else
+                            break;
+                    } else
+                        qStdout() << "Invalid input " << value << endl;
+                }
             }
         }
-    }
 
-    qInfo() << "Applying migrations:";
-    qInfo() << LINE_SPLITTER;
+        qInfo() << "Applying migrations:";
+        qInfo() << LINE_SPLITTER;
 
-    int idx = 1;
-    foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
-        qStdout()
-                << QString::number(idx++).rightJustified(4)
-                << ") "
-                << ProjectMigrationFile.FileName
-                << " ["
-                << ProjectMigrationFile.Scope
-                << "/"
-                << (ProjectMigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
-                << ProjectMigrationFile.Project
-                << "]"
-//                << MigrationFile.FullFileName
-                << " : "
-                ;
+        int idx = 1;
+        foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
+            qStdout()
+                    << QString::number(idx++).rightJustified(4)
+                    << ") "
+                    << ProjectMigrationFile.FileName
+                    << " ["
+                    << ProjectMigrationFile.Scope
+                    << "/"
+                    << (ProjectMigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
+                    << ProjectMigrationFile.Project
+                    << "]"
+    //                << MigrationFile.FullFileName
+                    << " : "
+                    ;
 
-        RunMigrationFile(ProjectMigrationFile);
+            RunMigrationFile(ProjectMigrationFile);
 
-        qStdout() << "OK" << endl;
+            qStdout() << "OK" << endl;
 
-        --RemainCount;
-        if (RemainCount <= 0)
-            break;
+            --RemainCount;
+            if (RemainCount <= 0)
+                break;
+        }
+    } else { //Configs::MigrationName.value().isEmpty()
+        foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
+            if (Configs::MigrationName.value() != ProjectMigrationFile.FileName)
+                continue;
+
+//            if ((Configs::Project.value().isEmpty() == false)
+//                    && (Configs::Project.value() != ProjectMigrationFile.Project.split("@").first().trimmed()))
+//                continue;
+
+            qStdout()
+                    << ProjectMigrationFile.FileName
+                    << " ["
+                    << ProjectMigrationFile.Scope
+                    << "/"
+                    << (ProjectMigrationFile.Scope == "local" ? "" : Configs::DBPrefix.value())
+                    << ProjectMigrationFile.Project
+                    << "]"
+    //                << MigrationFile.FullFileName
+                    << " : "
+                    ;
+
+            RunMigrationFile(ProjectMigrationFile);
+
+            qStdout() << "OK" << endl;
+        }
     }
 
     qInfo() << "";

@@ -811,7 +811,7 @@ inline void ExtractMigrationHistories(MigrationHistoryMap &_migrationHistories) 
 
     //extract db histories from config::db::schema
     auto fnCheckDBSource = [&](const QString &_projectName, const QString &_dbServerName) {
-        QString ProjectDBServerName = /*Configs::DBPrefix.value() + */_projectName + "@" + _dbServerName;
+        QString ProjectDBServerName = _projectName + "@" + _dbServerName;
 
         stuMigrationHistory MigrationHistory(
                     ProjectDBServerName,
@@ -1032,7 +1032,7 @@ inline void CreateDBIfNotExists(const QString &_projectName, QString &_dbServerN
     qDebug() << "CreateDBIfNotExists" << Configs::DBPrefix.value() << _projectName << _dbServerName;
     qDebug() << Configs::RunningParameters.NonExistsProjectDBConnectionStrings.keys();
 
-    QString ProjectDestinationKey = /*Configs::DBPrefix.value() + */_projectName + "@" + _dbServerName;
+    QString ProjectDestinationKey = _projectName + "@" + _dbServerName;
 
     if (Configs::RunningParameters.NonExistsProjectDBConnectionStrings.contains(ProjectDestinationKey) == false)
         return;
@@ -1061,6 +1061,95 @@ inline void CreateDBIfNotExists(const QString &_projectName, QString &_dbServerN
     clsDAC::setConnectionString(ConnStringWithSchema, ProjectDestinationKey);
 }
 
+inline bool IsMigrationFileApplied(const stuProjectMigrationFileInfo &_migrationFile) {
+    if (_migrationFile.Scope == "db") {
+        QStringList Parts = _migrationFile.Project.split('@');
+        QString Schema = Parts[0];
+
+        CreateDBIfNotExists(Schema, Parts[1]);
+
+        clsDAC DAC(_migrationFile.Project);
+
+        //check table field
+        QString Qry = R"(
+            SELECT TABLE_NAME
+              FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA=?
+               AND TABLE_NAME=?
+        )";
+        clsDACResult ResultTable = DAC.execQuery("", Qry, {
+                                                     Configs::DBPrefix.value() + Schema,
+                                                     Configs::GlobalHistoryTableName.value(),
+                                                 });
+
+        if (ResultTable.toJson(true).object().isEmpty())
+            return false;
+
+        //check status field
+        Qry = R"(
+            SELECT COLUMN_NAME
+              FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA=?
+               AND TABLE_NAME=?
+               AND COLUMN_NAME='migStatus'
+        )";
+        clsDACResult ResultColumn = DAC.execQuery("", Qry, {
+                                                     Configs::DBPrefix.value() + Schema,
+                                                     Configs::GlobalHistoryTableName.value(),
+                                                 });
+
+        if (ResultColumn.toJson(true).object().isEmpty())
+            Qry = QString("SELECT * FROM %1%2.%3 WHERE migName=?")
+                  .arg(Configs::DBPrefix.value())
+                  .arg(Schema)
+                  .arg(Configs::GlobalHistoryTableName.value());
+        else
+            Qry = QString("SELECT * FROM %1%2.%3 WHERE migName=? AND migStatus!='R'")
+                  .arg(Configs::DBPrefix.value())
+                  .arg(Schema)
+                  .arg(Configs::GlobalHistoryTableName.value());
+
+        clsDACResult Result = DAC.execQuery("", Qry, {
+                                                _migrationFile.FileName
+                                            });
+
+        return (ResultColumn.toJson(true).object().isEmpty() == false);
+
+    } else { //local
+        QFileInfo FileInfo(_migrationFile.FullFileName);
+
+        if (FileInfo.exists() == false)
+//            throw exTargomanBase("File not found");
+            return false;
+
+        QString MigrationHistoryFileName = QString("%1/%2")
+                                           .arg(FileInfo.path())
+                                           .arg(Configs::LocalHistoryFileName.value());
+
+        QFile File(MigrationHistoryFileName);
+
+        if (File.open(QFile::ReadWrite | QFile::Text) == false)
+//            throw exTargomanBase("Could not create or open history file");
+            return false;
+
+        QTextStream stream(&File);
+
+        bool Found = false;
+
+        while (stream.atEnd() == false) {
+            QString Line = stream.readLine();
+            if (Line.startsWith(_migrationFile.FileName)) {
+                Found = true;
+                break;
+            }
+        }
+
+        File.close();
+
+        return Found;
+    }
+}
+
 inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile) {
     if (_migrationFile.Scope == "db") {
         QStringList Parts = _migrationFile.Project.split('@');
@@ -1068,7 +1157,7 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
 
         CreateDBIfNotExists(Schema, Parts[1]);
 
-        clsDAC DAC(/*Configs::DBPrefix.value() + */_migrationFile.Project);
+        clsDAC DAC(_migrationFile.Project);
 
         QString Qry = QString(R"(
             INSERT INTO %1%2.%3
@@ -1121,15 +1210,19 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
 }
 
 inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, bool _run = true) {
+    //1: check migration not applied or marked before
+    if (IsMigrationFileApplied(_migrationFile))
+        return;
+
+    //2: run migration
     if (_migrationFile.Scope == "db") {
         QStringList Parts = _migrationFile.Project.split('@');
         QString Schema = Parts[0];
 
         CreateDBIfNotExists(Schema, Parts[1]);
 
-        //1: run migration
         if (_run) {
-            clsDAC DAC(/*Configs::DBPrefix.value() + */_migrationFile.Project);
+            clsDAC DAC(_migrationFile.Project);
 
             QFile File(_migrationFile.FullFileName);
 
@@ -1193,9 +1286,6 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                 }
             }
         }
-
-        //2: add to history
-        MarkMigrationFile(_migrationFile);
     } else { //local
         //1: run migration
         if (_run)  {
@@ -1229,10 +1319,10 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                 }
             }
         }
-
-        //2: add to history
-        MarkMigrationFile(_migrationFile);
     }
+
+    //3: add to history
+    MarkMigrationFile(_migrationFile);
 }
 
 inline QString GetSymlinkTarget(QString _path) {
