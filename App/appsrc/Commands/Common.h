@@ -1113,7 +1113,7 @@ inline bool IsMigrationFileApplied(const stuProjectMigrationFileInfo &_migration
                                                 _migrationFile.FileName
                                             });
 
-        return (ResultColumn.toJson(true).object().isEmpty() == false);
+        return (Result.toJson(true).object().isEmpty() == false);
 
     } else { //local
         QFileInfo FileInfo(_migrationFile.FullFileName);
@@ -1302,8 +1302,14 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                                 QFile::ExeUser | QFile::ExeGroup | QFile::ExeOwner | QFile::ExeOther
                                 );
 
+                QStringList Aruments;
+                Aruments << "--active-running-mode" << Configs::ActiveRunningMode.value();
+
+                if (Configs::DBPrefix.value().isEmpty() == false)
+                    Aruments << "--dbprefix" << Configs::DBPrefix.value();
+
                 QProcess MigrationProcess;
-                MigrationProcess.start(_migrationFile.FullFileName);
+                MigrationProcess.start(_migrationFile.FullFileName, Aruments);
 
                 if (!MigrationProcess.waitForFinished())
                     throw exTargomanBase("Execution failed");
