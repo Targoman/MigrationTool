@@ -153,7 +153,7 @@ tmplConfigurable<QString> Configs::Project(
     "",
     "PROJECT",
     "project",
-    enuConfigSource::Arg | enuConfigSource::File
+    enuConfigSource::Arg
 );
 
 tmplConfigurable<bool> Configs::DBOnly(
@@ -186,6 +186,17 @@ tmplConfigurable<bool> Configs::All(
     "",
     "",
     "all",
+    enuConfigSource::Arg
+);
+
+tmplConfigurable<QString> Configs::MigrationName(
+    Configs::makeConfig("MigrationName"),
+    "Migration file name to focus",
+    "",
+    ReturnTrueCrossValidator(),
+    "",
+    "MIGRATIONNAME",
+    "migration-name",
     enuConfigSource::Arg
 );
 
