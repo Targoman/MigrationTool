@@ -73,6 +73,9 @@ struct Configs
         //key: Project.Name @ DBServer.Name
         QMap<QString, QString> NonExistsProjectDBConnectionStrings;
 
+        //Tag => Projects.Name
+        QMap<QString, QStringList> ProjectsByTag;
+
         stuRunningParameters() :
 //            RunningModeIndex(-1),
 //            RunningModeName(),
