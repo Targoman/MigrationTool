@@ -58,10 +58,9 @@ bool cmdNewLocal::run() {
 
     QTextStream writer(&File);
     writer
-        << "#!/bin/bash"
-        << endl
-        << "#Migration File: "
-        << FileName
+        << "#!/bin/bash" << endl
+        << "# Migration File: " << FileName << endl
+        << "# use $@ for arguments passed from migration runner" << endl
         << endl
         << R"(
 if [ $# -ge 1 ]; then
