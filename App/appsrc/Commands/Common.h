@@ -1303,10 +1303,13 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                                 );
 
                 QStringList Aruments;
+                Aruments << QCoreApplication::arguments().at(0);
+                Aruments << "--config" << Configuration::ConfigManager::instance().configFilePath();
                 Aruments << "--active-running-mode" << Configs::ActiveRunningMode.value();
-
                 if (Configs::DBPrefix.value().isEmpty() == false)
                     Aruments << "--dbprefix" << Configs::DBPrefix.value();
+
+                qDebug() << "arguments passed to sh file:" << Aruments;
 
                 QProcess MigrationProcess;
                 MigrationProcess.start(_migrationFile.FullFileName, Aruments);
