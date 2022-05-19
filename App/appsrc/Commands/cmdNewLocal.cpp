@@ -60,7 +60,8 @@ bool cmdNewLocal::run() {
     writer
         << "#!/bin/bash" << endl
         << "# Migration File: " << FileName << endl
-        << "# use $@ for arguments passed from migration runner" << endl
+        << "# use $@ for MIGRATIONTOOL and necessary arguments passed from migration runner" << endl
+        << "#     e.g.: $@ --command mark --migration-name ..." << endl
         << endl
         << R"(
 if [ $# -ge 1 ]; then
