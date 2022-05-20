@@ -153,7 +153,7 @@ tmplConfigurable<QString> Configs::Project(
     "",
     "PROJECT",
     "project",
-    enuConfigSource::Arg | enuConfigSource::File
+    enuConfigSource::Arg
 );
 
 tmplConfigurable<bool> Configs::DBOnly(
@@ -186,6 +186,17 @@ tmplConfigurable<bool> Configs::All(
     "",
     "",
     "all",
+    enuConfigSource::Arg
+);
+
+tmplConfigurable<QString> Configs::MigrationName(
+    Configs::makeConfig("MigrationName"),
+    "Migration file name to focus",
+    "",
+    ReturnTrueCrossValidator(),
+    "",
+    "MIGRATIONNAME",
+    "migration-name",
     enuConfigSource::Arg
 );
 
@@ -250,7 +261,7 @@ void Configs::FillRunningParameters() {
 
                         if ((Configs::Project.value().isEmpty() == false)
                                 && (Project.Name.value() != Configs::Project.value())
-                                && (Project.ApplyToAllProjects.value() == false)
+                                && (Project.ApplyToTags.value().isEmpty())
                             )
                             continue;
 
@@ -300,6 +311,26 @@ void Configs::FillRunningParameters() {
                 }
             }
             ++dbIdx;
+        }
+    }
+
+    //projects by tag
+    for (size_t idxProjects=0; idxProjects<Configs::Projects.size(); idxProjects++) {
+        stuProject &Project = Configs::Projects[idxProjects];
+
+        if (Project.Tags.value().isEmpty())
+            continue;
+
+        QStringList Tags = Project.Tags.value().split(",", QString::SkipEmptyParts);
+        foreach (QString Tag, Tags) {
+            Tag = Tag.trimmed(); //.toLower();
+            if (Tag.isEmpty())
+                continue;
+
+            if (Configs::RunningParameters.ProjectsByTag.contains(Tag))
+                Configs::RunningParameters.ProjectsByTag[Tag].append(Project.Name.value());
+            else
+                Configs::RunningParameters.ProjectsByTag.insert(Tag, { Project.Name.value() });
         }
     }
 }

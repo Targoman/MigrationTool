@@ -48,6 +48,7 @@ struct Configs
     static tmplConfigurable<bool>                       DBOnly;
     static tmplConfigurable<bool>                       LocalOnly;
     static tmplConfigurable<bool>                       All;
+    static tmplConfigurable<QString>                    MigrationName;
 
     static tmplConfigurable<QString>                    DefaultEditor;
 
@@ -72,6 +73,9 @@ struct Configs
 
         //key: Project.Name @ DBServer.Name
         QMap<QString, QString> NonExistsProjectDBConnectionStrings;
+
+        //Tag => Projects.Name
+        QMap<QString, QStringList> ProjectsByTag;
 
         stuRunningParameters() :
 //            RunningModeIndex(-1),
