@@ -1150,7 +1150,7 @@ inline bool IsMigrationFileApplied(const stuProjectMigrationFileInfo &_migration
     }
 }
 
-inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile) {
+inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, bool _setAsCommit = false) {
     if (_migrationFile.Scope == "db") {
         QStringList Parts = _migrationFile.Project.split('@');
         QString Schema = Parts[0];
@@ -1161,8 +1161,9 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
 
         QString Qry = QString(R"(
             INSERT INTO %1%2.%3
-               SET migName=?
-                 , migAppliedAt=NOW()
+               SET migName = ?
+                 , migAppliedAt = NOW()
+                 , migRunType = ?
             )")
             .arg(Configs::DBPrefix.value())
             .arg(Schema)
@@ -1170,7 +1171,8 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile)
         ;
 
         clsDACResult Result = DAC.execQuery("", Qry, {
-                                                _migrationFile.FileName
+                                                _migrationFile.FileName,
+                                                _setAsCommit ? "C" : "M"
                                             });
     } else { //local
         QFileInfo FileInfo(_migrationFile.FullFileName);
@@ -1331,7 +1333,7 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
     }
 
     //3: add to history
-    MarkMigrationFile(_migrationFile);
+    MarkMigrationFile(_migrationFile, _run);
 }
 
 inline QString GetSymlinkTarget(QString _path) {
