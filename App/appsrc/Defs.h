@@ -97,7 +97,7 @@ struct stuDBServer
 
     void setFromVariant(const QVariant &_value)
     {
-        qDebug() << __FUNCTION__ << __LINE__ << _value;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__ << _value;
 
         QVariantMap map = _value.toMap();
 
@@ -110,7 +110,7 @@ struct stuDBServer
 
     QVariant toVariant() const
     {
-        qDebug() << __FUNCTION__ << __LINE__;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__;
 
         QVariantMap map;
 
@@ -120,7 +120,7 @@ struct stuDBServer
         map.insert(BasePath + "UserName", this->UserName.toVariant());
         map.insert(BasePath + "Password", this->Password.toVariant());
 
-        qDebug() << map;
+        TargomanDebug(5) << map;
 
         return map;
     }
@@ -144,7 +144,7 @@ struct stuRunningMode
 
     void setFromVariant(const QVariant &_value)
     {
-        qDebug() << __FUNCTION__ << __LINE__ << _value;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__ << _value;
 
         QVariantMap map = _value.toMap();
 
@@ -154,14 +154,14 @@ struct stuRunningMode
 
     QVariant toVariant() const
     {
-        qDebug() << __FUNCTION__ << __LINE__;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__;
 
         QVariantMap map;
 
         map.insert(BasePath + "Name", this->Name.toVariant());
         map.insert(BasePath + "DBServers", this->DBServers.toVariant().toString().split(','));
 
-        qDebug() << map;
+        TargomanDebug(5) << map;
 
         return map;
     }
@@ -206,7 +206,7 @@ struct stuProject
 
     void setFromVariant(const QVariant &_value)
     {
-        qDebug() << __FUNCTION__ << __LINE__ << _value;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__ << _value;
 
         QVariantMap map = _value.toMap();
 
@@ -220,7 +220,7 @@ struct stuProject
 
     QVariant toVariant() const
     {
-        qDebug() << __FUNCTION__ << __LINE__;
+        TargomanDebug(5) << __FUNCTION__ << __LINE__;
 
         QVariantMap map;
 
@@ -231,7 +231,7 @@ struct stuProject
         map.insert(BasePath + "ApplyToTags", this->ApplyToTags.toVariant());
         map.insert(BasePath + "DBDestinations", this->DBDestinations.toVariant().toString().split(','));
 
-        qDebug() << map;
+        TargomanDebug(5) << map;
 
         return map;
     }
@@ -261,13 +261,13 @@ inline QTextStream& qStdIn() {
 template <>
 inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
-    qDebug() << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
+    TargomanDebug(5) << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
     ///TODO: implement this
 }
 template <>
 inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuDBServer>::toVariant() const
 {
-    qDebug() << __FUNCTION__ << "[]" << __LINE__;
+    TargomanDebug(5) << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
@@ -275,20 +275,20 @@ inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman:
         ret.append(Item.toVariant());
     }
 
-    qDebug() << "[]" << ret;
+    TargomanDebug(5) << "[]" << ret;
 
     return ret;
 }
 template <>
 inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
-    qDebug() << __FUNCTION__ << __LINE__ << "[] setFromVariant" << _value;
+    TargomanDebug(5) << __FUNCTION__ << __LINE__ << "[] setFromVariant" << _value;
     ///TODO: implement this
 }
 template <>
 inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuRunningMode>::toVariant() const
 {
-    qDebug() << __FUNCTION__ << "[]" << __LINE__;
+    TargomanDebug(5) << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
@@ -296,20 +296,20 @@ inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman:
         ret.append(Item.toVariant());
     }
 
-    qDebug() << "[]" << ret;
+    TargomanDebug(5) << "[]" << ret;
 
     return ret;
 }
 template <>
 inline void Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::setFromVariant(const QVariant& _value) {
     Q_UNUSED(_value);
-    qDebug() << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
+    TargomanDebug(5) << __FUNCTION__ << __LINE__ << "setFromVariant" << _value;
     ///TODO: implement this
 }
 template <>
 inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman::Migrate::stuProject>::toVariant() const
 {
-    qDebug() << __FUNCTION__ << "[]" << __LINE__;
+    TargomanDebug(5) << __FUNCTION__ << "[]" << __LINE__;
 
     QVariantList ret;
 
@@ -317,7 +317,7 @@ inline QVariant Targoman::Common::Configuration::tmplConfigurableArray<Targoman:
         ret.append(Item.toVariant());
     }
 
-    qDebug() << "[]" << ret;
+    TargomanDebug(5) << "[]" << ret;
 
     return ret;
 }

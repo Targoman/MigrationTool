@@ -36,17 +36,17 @@ void cmdCheckBC::help() {
 bool cmdCheckBC::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
-//    qDebug() << "** All MigrationFiles ******************************";
+//    TargomanDebug(5) << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
     if (ProjectMigrationFiles.isEmpty()) {
-        qInfo() << "nothing to check";
+        TargomanInfo(0).noLabel() << "nothing to check";
         return true;
     }
 
@@ -72,12 +72,12 @@ bool cmdCheckBC::run() {
                               });
     }
 
-    qDebug().noquote().nospace()
+    TargomanDebug(5).noquote().nospace()
             << endl
             << "Unapplied migrations:"
             ;
     dump(MigrationFiles);
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     qint32 RemainCount = 0;
 
@@ -136,7 +136,7 @@ bool cmdCheckBC::run() {
         }
     }
 
-    qInfo().noquote().nospace()
+    TargomanInfo(0).noLabel().noquote().nospace()
             << "Checking migrations:"
             << endl
             << QString(150, '-')
@@ -168,7 +168,7 @@ bool cmdCheckBC::run() {
             break;
     }
 
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
     qStdout() << "[STATUS:OK]" << endl;
 
     return true;
@@ -219,7 +219,7 @@ bool IsMigrationFileBackwardCompatible(const stuMigrationFileInfo &_migrationFil
 
                     if (SmallQry.isEmpty() == false) {
 //                            SmallQry += ";";
-//                        qDebug() << "\t\tChecking query" << SmallQry.left(50) << "...";
+//                        TargomanDebug(5) << "\t\tChecking query" << SmallQry.left(50) << "...";
 
                         //TODO: parse qry and check command
 

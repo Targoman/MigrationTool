@@ -23,6 +23,8 @@
 
 #include "cmdNewDBDiff.h"
 #include "../Configs.h"
+#include <signal.h>
+#include <unistd.h>
 
 namespace Targoman::Migrate::Commands {
 
@@ -32,6 +34,11 @@ void cmdNewDBDiff::help() {
 }
 
 bool cmdNewDBDiff::run() {
+    if (Configs::RunningParameters.ProjectAllowedDBServers.isEmpty()) {
+        TargomanInfo(0).noLabel() << "No DB Servers found.";
+        return true;
+    }
+
     QString FileName;
     QString FullFileName;
     quint32 ProjectIndex;
@@ -44,46 +51,150 @@ bool cmdNewDBDiff::run() {
             ) == false)
         return true;
 
-//    qDebug() << "===================="
-//             << SourceIndex
-//             << DBIndex
-//             ;
+    QFile File(FullFileName);
+    if (File.open(QFile::WriteOnly | QFile::Text) == false) {
+        TargomanInfo(0).noLabel() << "Could not create new migration file.";
+        return true;
+    }
 
-    stuProject &SelectedProject = Configs::Projects[ProjectIndex];
+    FullFileName = GetSymlinkTarget(FullFileName);
 
-    qDebug() << SelectedProject.Name.value();
+    TargomanInfo(0).noLabel().noquote().nospace() << "Creating new migration file: " << FullFileName;
 
+    QTextStream writer(&File);
+    writer << "/* Migration File: " << FileName << " */" << endl
+           << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
+           << endl
+           << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
+           << "ERROR(\"THIS MIGRATION FILE IS NOT READY FOR EXECUTE.\")" << endl
+           << endl;
+    File.close();
 
+    TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully. Now gathering diff for selected project.";
 
+    //-- diff --------------------------
+    this->diff(
+                ProjectIndex,
+                FullFileName
+              );
 
-//    libTargomanCompare
+    //-- vim --------------------------
+    qint64 PID;
 
+    if (QProcess::startDetached(Configs::DefaultEditor.value(),
+                                QStringList() << FullFileName,
+                                {},
+                                &PID) == false)
+        throw exTargomanBase("Execution of default editor failed");
 
-    qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
+    while (kill(PID, 0) == 0) { usleep(1); }
 
-
-
-//    QFile File(FullFileName);
-
-//    if (File.open(QFile::WriteOnly | QFile::Text) == false)
-//    {
-//        qInfo() << "Could not create new migration file.";
-//        return true;
-//    }
-
-//    QTextStream writer(&File);
-//    writer
-//        << "/* Migration File: "
-//        << FileName
-//        << " */"
-//        << endl
-//        << endl
-//        ;
-//    File.close();
-
-//    qInfo().noquote() << "Migration file by diff created successfully.";
+    //-- git --------------------------
+    TargomanInfo(0).noLabel().noquote() << "Do not forgot to add new generated file to git if needed." << endl;
 
     return true;
+}
+
+void cmdNewDBDiff::diff(
+    quint32 _projectIndex,
+    const QString &_fullFileName
+) {
+    QDir BaseFolder(Configs::MigrationsFolderName.value());
+    ///TODO: check if dir exists
+    BaseFolder.makeAbsolute();
+
+    stuProject &Project = Configs::Projects[_projectIndex];
+    QString ProjectName = Project.Name.value();
+    QString DBServerName = Configs::RunningParameters.ProjectAllowedDBServers[ProjectName].first();
+    QString ProjectDBServerName = ProjectName + "@" + DBServerName;
+
+    QStringList BaseCommandLineParameters;
+    for (size_t idxDBServers=0; idxDBServers<Configs::DBServers.size(); idxDBServers++) {
+        stuDBServer &DBServer = Configs::DBServers[idxDBServers];
+        if (DBServer.Name.value() == DBServerName) {
+            BaseCommandLineParameters << "--read-from-remote-server"
+                                  << "--host=" + DBServer.Host.value()
+                                  << "--port=" + DBServer.Port.value()
+                                  << "--user=" + DBServer.UserName.value()
+                                  << "--password=" + DBServer.Password.value()
+                                  ;
+        }
+    }
+
+    if (BaseCommandLineParameters.isEmpty())
+        throw exMigrationTool("dbserver not found");
+
+    BaseCommandLineParameters << "--database=" + Configs::DBPrefix.value() + ProjectName;
+
+    QString DBDiffCfgFileName = QString("%1/%2/db/.dbdiff%3.cfg")
+                    .arg(BaseFolder.path())
+                    .arg(ProjectName)
+                    .arg(Configs::DBPrefix.value().isEmpty() ? "" : "." + Configs::DBPrefix.value())
+                    ;
+    QStringMap DBDiffConfigEntries;
+    if (QFile::exists(DBDiffCfgFileName)) {
+
+        QFile File(DBDiffCfgFileName);
+
+        if (!File.open(QFile::ReadOnly | QFile::Text))
+            throw exTargomanBase("File not found");
+
+        QTextStream Stream(&File);
+        while (true) {
+            QString Buffer = Stream.readLine();
+            if (Buffer.isNull())
+                break;
+
+            if (Buffer.isEmpty() || Buffer.startsWith("#"))
+                continue;
+
+            QStringList LineParts = Buffer.split("=", QString::SkipEmptyParts);
+            DBDiffConfigEntries[LineParts[0]] = LineParts[1];
+        };
+        File.close();
+    }
+
+    clsDAC DAC(ProjectDBServerName);
+    clsDACResult Result = DAC.execQuery("", "SHOW BINARY LOGS");
+//    TargomanDebug(5) << Result.toJson(false);
+    QVariantList BinaryLogList = Result.toJson(false).toVariant().toList();
+    if (BinaryLogList.isEmpty())
+        throw exMigrationTool("invalid result of SHOW BINARY LOGS");
+
+    foreach (auto Row, BinaryLogList) {
+        QVariantMap Map = Row.toMap();
+        QString BinaryLogName = Map["Log_name"].toString();
+
+        QStringList CommandLineParameters = BaseCommandLineParameters;
+
+        if (DBDiffConfigEntries.contains(BinaryLogName))
+            CommandLineParameters << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str()) + 1);
+
+        CommandLineParameters << BinaryLogName;
+
+        TargomanDebug(5).noquote()
+                << "mysqlbinlog"
+                << CommandLineParameters.join(" ")
+                ;
+
+        QProcess Process;
+        Process.start("mysqlbinlog", CommandLineParameters);
+        if (!Process.waitForFinished())
+            throw exTargomanBase("Execution failed");
+
+        QByteArray ProcessResult = Process.readAll();
+
+        TargomanDebug(5).noquote()
+                << "Result Length:"
+                << ProcessResult.length()
+                ;
+
+        if (ProcessResult.isEmpty() == false) {
+//            DBDiffConfigEntries[BinaryLogName] = "3";
+        }
+
+    }
+
 }
 
 } // namespace Targoman::Migrate::Commands

@@ -29,32 +29,32 @@ namespace Targoman::Migrate::Commands {
 cmdList::cmdList() { ; }
 
 void cmdList::help() {
-    qInfo() << "List of unapplied migrations";
-    //        qInfo() << _line_splitter;
-    //        qInfo() << "./MigrationTool" << "List     : showing the first 10 new migrations";
-    //        qInfo() << "./MigrationTool" << "List 5   : showing the first 5 new migrations";
-    //        qInfo() << "./MigrationTool" << "List all : showing all new migrations";
+    TargomanInfo(0).noLabel() << "List of unapplied migrations";
+    //        TargomanInfo(0).noLabel() << _line_splitter;
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "List     : showing the first 10 new migrations";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "List 5   : showing the first 5 new migrations";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "List all : showing all new migrations";
 }
 
 bool cmdList::run() {
-    qInfo() << "Unapplied migrations:";
-    qInfo() << LINE_SPLITTER;
+    TargomanInfo(0).noLabel() << "Unapplied migrations:";
+    TargomanInfo(0).noLabel() << LINE_SPLITTER;
 
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
-//    qDebug() << "** All MigrationFiles ******************************";
+//    TargomanDebug(5) << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
-//    qDebug() << "** Unapplied MigrationFiles ******************************";
+//    TargomanDebug(5) << "** Unapplied MigrationFiles ******************************";
     dump(ProjectMigrationFiles);
 
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     return true;
 }

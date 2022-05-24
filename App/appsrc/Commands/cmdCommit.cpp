@@ -34,24 +34,24 @@ void cmdCommit::help() {
 bool cmdCommit::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
-//    qDebug() << "** All MigrationFiles ******************************";
+//    TargomanDebug(5) << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
     if (ProjectMigrationFiles.isEmpty()) {
-        qInfo() << "nothing to commit";
+        TargomanInfo(0).noLabel() << "nothing to commit";
         return true;
     }
 
-    qDebug() << "** Unapplied MigrationFiles ******************************";
+    TargomanDebug(5) << "** Unapplied MigrationFiles ******************************";
     dump(ProjectMigrationFiles);
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     if (Configs::MigrationName.value().isEmpty()) {
         qint32 RemainCount = 0;
@@ -111,8 +111,8 @@ bool cmdCommit::run() {
             }
         }
 
-        qInfo() << "Applying migrations:";
-        qInfo() << LINE_SPLITTER;
+        TargomanInfo(0).noLabel() << "Applying migrations:";
+        TargomanInfo(0).noLabel() << LINE_SPLITTER;
 
         int idx = 1;
         foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
@@ -165,7 +165,7 @@ bool cmdCommit::run() {
         }
     }
 
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     return true;
 }

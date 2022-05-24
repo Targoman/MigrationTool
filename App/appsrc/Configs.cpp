@@ -265,13 +265,13 @@ void Configs::FillRunningParameters() {
                             )
                             continue;
 
-//                        qDebug() << "lookup" << DBServerName << "in" << Project.DBDestinations.value(); //.join("|");
+//                        TargomanDebug(5) << "lookup" << DBServerName << "in" << Project.DBDestinations.value(); //.join("|");
 
                         if (Project.AllowDB.value()
                                 && (Project.DBDestinations.value().isEmpty() == false)
                                 && Project.DBDestinations.value().contains(DBServerName)
-                            ) {
-//                            qDebug() << "found";
+                        ) {
+//                            TargomanDebug(5) << "found";
                             DBServerHasProjects = true;
 
                             //---------------------------

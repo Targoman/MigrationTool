@@ -42,7 +42,7 @@ int main(int _argc, char *_argv[]) {
     try {
         QCoreApplication App(_argc, _argv);
 
-        qInfo().noquote() << "Migration Tool. Version" << TARGOMAN_M2STR(PROJ_VERSION);
+        TargomanInfo(0).noLabel().noquote() << "Migration Tool. Version" << TARGOMAN_M2STR(PROJ_VERSION);
 
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wdate-time"
