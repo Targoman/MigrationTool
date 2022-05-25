@@ -200,6 +200,17 @@ tmplConfigurable<QString> Configs::MigrationName(
     enuConfigSource::Arg
 );
 
+tmplConfigurable<bool> Configs::Mark(
+    Configs::makeConfig("Mark"),
+    "Mark instead of commit or newdbdiff",
+    false,
+    ReturnTrueCrossValidator(),
+    "",
+    "",
+    "mark",
+    enuConfigSource::Arg
+);
+
 tmplConfigurable<QString> Configs::DefaultEditor(
     Configs::makeConfig("DefaultEditor"),
     "Default text editor",

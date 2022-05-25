@@ -51,29 +51,31 @@ bool cmdNewDBDiff::run() {
             ) == false)
         return true;
 
-    QFile File(FullFileName);
-    if (File.open(QFile::WriteOnly | QFile::Text) == false) {
-        TargomanInfo(0).noLabel() << "Could not create new migration file.";
-        return true;
+    if (Configs::Mark.value() == false) {
+        QFile File(FullFileName);
+        if (File.open(QFile::WriteOnly | QFile::Text) == false) {
+            TargomanInfo(0).noLabel() << "Could not create new migration file.";
+            return true;
+        }
+
+        FullFileName = GetSymlinkTarget(FullFileName);
+
+        TargomanInfo(0).noLabel().noquote().nospace() << "Creating new migration file: " << FullFileName;
+
+        QTextStream writer(&File);
+        writer << "/* Migration File: " << FileName << " */" << endl
+               << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
+               << endl
+               << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
+               << BAD_FILE_SIGNATURE << endl
+               << endl
+               << "USE `{{dbprefix}}{{Schema}}`;" << endl
+               << endl
+               ;
+        File.close();
+
+        TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully. Now gathering diff for selected project.";
     }
-
-    FullFileName = GetSymlinkTarget(FullFileName);
-
-    TargomanInfo(0).noLabel().noquote().nospace() << "Creating new migration file: " << FullFileName;
-
-    QTextStream writer(&File);
-    writer << "/* Migration File: " << FileName << " */" << endl
-           << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
-           << endl
-           << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
-           << BAD_FILE_SIGNATURE << endl
-           << endl
-           << "USE `{{dbprefix}}{{Schema}}`;" << endl
-           << endl
-           ;
-    File.close();
-
-    TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully. Now gathering diff for selected project.";
 
     //-- diff --------------------------
     this->diff(
@@ -81,19 +83,21 @@ bool cmdNewDBDiff::run() {
                 FullFileName
               );
 
-    //-- vim --------------------------
-    qint64 PID;
+    if (Configs::Mark.value() == false) {
+        //-- vim --------------------------
+        qint64 PID;
 
-    if (QProcess::startDetached(Configs::DefaultEditor.value(),
-                                QStringList() << FullFileName,
-                                {},
-                                &PID) == false)
-        throw exTargomanBase("Execution of default editor failed");
+        if (QProcess::startDetached(Configs::DefaultEditor.value(),
+                                    QStringList() << FullFileName,
+                                    {},
+                                    &PID) == false)
+            throw exTargomanBase("Execution of default editor failed");
 
-    while (kill(PID, 0) == 0) { usleep(1); }
+        while (kill(PID, 0) == 0) { usleep(1); }
 
-    //-- git --------------------------
-    TargomanInfo(0).noLabel().noquote() << "Do not forgot to add new generated file to git if needed." << endl;
+        //-- git --------------------------
+        TargomanInfo(0).noLabel().noquote() << "Do not forgot to add new generated file to git if needed." << endl;
+    }
 
     return true;
 }
@@ -210,11 +214,15 @@ void cmdNewDBDiff::diff(
 
     //---------------------------
     QFile MigOutFile(_fullFileName);
-    if (!MigOutFile.open(QFile::Append | QFile::Text))
-        throw exTargomanBase("Could not append file");
+    if (Configs::Mark.value() == false) {
+        if (!MigOutFile.open(QFile::Append | QFile::Text))
+            throw exTargomanBase("Could not append file");
+    }
 
     try {
-        QTextStream MigOutFileStream(&MigOutFile);
+        QTextStream MigOutFileStream;
+        if (Configs::Mark.value() == false)
+            MigOutFileStream.setDevice(&MigOutFile);
 
         foreach (auto Row, BinaryLogList) {
             QVariantMap Map = Row.toMap();
@@ -257,13 +265,15 @@ void cmdNewDBDiff::diff(
                     ;
 
             //--------------------------
-            MigOutFileStream << "/" << QString(60, '*') << "\\" << endl;
-            QString Buffer = BinaryLogName;
-            if (DBDiffConfigEntries.contains(BinaryLogName))
-                Buffer += QString(" ") + "--start-position=" + QString::number(DBDiffConfigEntries[BinaryLogName]);
-            MigOutFileStream << "| " << Buffer << QString(60 - 2 -  Buffer.length(), ' ') << " |" << endl;
-            MigOutFileStream << "\\" << QString(60, '*') << "/" << endl;
-            MigOutFileStream << endl;
+            if (Configs::Mark.value() == false) {
+                MigOutFileStream << "/" << QString(60, '*') << "\\" << endl;
+                QString Buffer = BinaryLogName;
+                if (DBDiffConfigEntries.contains(BinaryLogName))
+                    Buffer += QString(" ") + "--start-position=" + QString::number(DBDiffConfigEntries[BinaryLogName]);
+                MigOutFileStream << "| " << Buffer << QString(60 - 2 -  Buffer.length(), ' ') << " |" << endl;
+                MigOutFileStream << "\\" << QString(60, '*') << "/" << endl;
+                MigOutFileStream << endl;
+            }
 
             //--------------------------
             QProcess Process;
@@ -327,16 +337,19 @@ void cmdNewDBDiff::diff(
                     << "lastEndLogPosition:" << lastEndPosition
                     ;
 
-            MigOutFileStream << Output;
+            if (Configs::Mark.value() == false)
+                MigOutFileStream << Output;
 
             if (lastEndPosition > 0)
                 DBDiffConfigEntries[BinaryLogName] = lastEndPosition;
         } //foreach (auto Row, BinaryLogList)
 
-        MigOutFile.close();
+        if (Configs::Mark.value() == false)
+            MigOutFile.close();
 
     }  catch (std::exception &_exp) {
-        MigOutFile.close();
+        if (Configs::Mark.value() == false)
+            MigOutFile.close();
 
         SaveDBDiffCfgFile();
 
