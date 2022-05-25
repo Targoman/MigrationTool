@@ -1250,6 +1250,9 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
             File.close();
 
             if (Qry.isEmpty() == false) {
+                if (Qry.indexOf(BAD_FILE_SIGNATURE) >= 0)
+                    throw exTargomanBase("This file is not ready for commit");
+
                 Qry = Qry
                     .replace("{{dbprefix}}", Configs::DBPrefix.value())
                     .replace("{{Schema}}", Schema)
@@ -1311,6 +1314,17 @@ inline void RunMigrationFile(const stuProjectMigrationFileInfo &_migrationFile, 
                 throw exTargomanBase("File not found");
 
             if (FileInfo.size() > 0) {
+                //check
+                QFile File(_migrationFile.FullFileName);
+                if (!File.open(QFile::ReadOnly | QFile::Text))
+                    throw exTargomanBase("File not found");
+                QTextStream Stream(&File);
+                QString FileContent = Stream.readAll().trimmed();
+                File.close();
+                if (FileContent.indexOf(BAD_FILE_SIGNATURE) >= 0)
+                    throw exTargomanBase("This file is not ready for commit");
+
+                //--
                 if (FileInfo.isExecutable() == false)
                     QFile::setPermissions(
                                 _migrationFile.FullFileName,

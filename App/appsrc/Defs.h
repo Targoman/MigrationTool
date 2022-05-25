@@ -53,9 +53,10 @@ TARGOMAN_DEFINE_ENHANCED_ENUM(enuAppCommand,
                               );
 
 constexpr char LINE_SPLITTER[] = "------------------------------------------------------------------------";
-constexpr char REGEX_PATTERN_MIGRATION_FILENAME[]      = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql)";
-constexpr char REGEX_PATTERN_MIGRATION_LOG_FILENAME[]  = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql).log";
-constexpr char CREATE_DB_MIGRATION_HISTORY_FILE_NAME[] = "m00000000_000000_MigrationTool_migration_init.sql";
+constexpr char REGEX_PATTERN_MIGRATION_FILENAME[]       = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql)";
+constexpr char REGEX_PATTERN_MIGRATION_LOG_FILENAME[]   = "m[0-9]{8}_[0-9]{6}_[a-zA-Z0-9-_]*.(sh|sql).log";
+constexpr char CREATE_DB_MIGRATION_HISTORY_FILE_NAME[]  = "m00000000_000000_MigrationTool_migration_init.sql";
+constexpr char BAD_FILE_SIGNATURE[]                     = "ERROR(\"THIS MIGRATION FILE IS NOT READY FOR EXECUTE.\")";
 
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Wweak-vtables"

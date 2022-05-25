@@ -62,7 +62,7 @@ bool cmdNewLocal::run() {
         << "# Migration File: " << FileName << endl
         << endl
         << "# The next line is to prevent this file from being committed. When done, delete this and next line:" << endl
-        << "ERROR(\"THIS MIGRATION FILE IS NOT READY FOR EXECUTE.\")" << endl
+        << BAD_FILE_SIGNATURE << endl
         << endl
         << "# use $@ for MIGRATIONTOOL and necessary arguments passed from migration runner" << endl
         << "#     e.g.: $@ --command mark --migration-name ..." << endl

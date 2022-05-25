@@ -61,8 +61,11 @@ bool cmdNewDB::run() {
            << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
            << endl
            << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
-           << "ERROR(\"THIS MIGRATION FILE IS NOT READY FOR EXECUTE.\")" << endl
-           << endl;
+           << BAD_FILE_SIGNATURE << endl
+           << endl
+           << "USE `{{dbprefix}}{{Schema}}`;" << endl
+           << endl
+           ;
     File.close();
 
     TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully.";

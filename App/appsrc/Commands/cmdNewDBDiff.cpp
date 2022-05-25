@@ -66,8 +66,11 @@ bool cmdNewDBDiff::run() {
            << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
            << endl
            << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
-           << "ERROR(\"THIS MIGRATION FILE IS NOT READY FOR EXECUTE.\")" << endl
-           << endl;
+           << BAD_FILE_SIGNATURE << endl
+           << endl
+           << "USE `{{dbprefix}}{{Schema}}`;" << endl
+           << endl
+           ;
     File.close();
 
     TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully. Now gathering diff for selected project.";
@@ -108,24 +111,29 @@ void cmdNewDBDiff::diff(
     QString DBServerName = Configs::RunningParameters.ProjectAllowedDBServers[ProjectName].first();
     QString ProjectDBServerName = ProjectName + "@" + DBServerName;
 
-    QStringList BaseCommandLineParameters;
+    QStringMap DBServerParameters;
     for (size_t idxDBServers=0; idxDBServers<Configs::DBServers.size(); idxDBServers++) {
         stuDBServer &DBServer = Configs::DBServers[idxDBServers];
         if (DBServer.Name.value() == DBServerName) {
-            BaseCommandLineParameters << "--read-from-remote-server"
-                                  << "--host=" + DBServer.Host.value()
-                                  << "--port=" + DBServer.Port.value()
-                                  << "--user=" + DBServer.UserName.value()
-                                  << "--password=" + DBServer.Password.value()
-                                  ;
+            DBServerParameters.insert("host", DBServer.Host.value());
+            DBServerParameters.insert("port", DBServer.Port.value());
+            DBServerParameters.insert("user", DBServer.UserName.value());
+            DBServerParameters.insert("password", DBServer.Password.value());
         }
     }
 
-    if (BaseCommandLineParameters.isEmpty())
+    if (DBServerParameters.isEmpty())
         throw exMigrationTool("dbserver not found");
 
-    BaseCommandLineParameters << "--database=" + Configs::DBPrefix.value() + ProjectName;
+    //---------------------------
+    clsDAC DAC(ProjectDBServerName);
+    clsDACResult Result = DAC.execQuery("", "SHOW BINARY LOGS");
+//    TargomanDebug(5) << Result.toJson(false);
+    QVariantList BinaryLogList = Result.toJson(false).toVariant().toList();
+    if (BinaryLogList.isEmpty())
+        throw exMigrationTool("invalid result of SHOW BINARY LOGS");
 
+    //---------------------------
     QString DBDiffCfgFileName = QString("%1/%2/db/.dbdiff%3.cfg")
                     .arg(BaseFolder.path())
                     .arg(ProjectName)
@@ -149,52 +157,174 @@ void cmdNewDBDiff::diff(
                 continue;
 
             QStringList LineParts = Buffer.split("=", QString::SkipEmptyParts);
-            DBDiffConfigEntries[LineParts[0]] = LineParts[1];
+            foreach (auto Row, BinaryLogList) {
+                QVariantMap Map = Row.toMap();
+                QString BinaryLogName = Map["Log_name"].toString();
+
+                //bypass old log files
+                if (LineParts[0] == BinaryLogName) {
+                    DBDiffConfigEntries[LineParts[0]] = LineParts[1];
+                    break;
+                }
+            }
         };
         File.close();
     }
 
-    clsDAC DAC(ProjectDBServerName);
-    clsDACResult Result = DAC.execQuery("", "SHOW BINARY LOGS");
-//    TargomanDebug(5) << Result.toJson(false);
-    QVariantList BinaryLogList = Result.toJson(false).toVariant().toList();
-    if (BinaryLogList.isEmpty())
-        throw exMigrationTool("invalid result of SHOW BINARY LOGS");
+    //---------------------------
+    QFile MigOutFile(_fullFileName);
+    if (!MigOutFile.open(QFile::Append | QFile::Text))
+        throw exTargomanBase("Could not append file");
 
-    foreach (auto Row, BinaryLogList) {
-        QVariantMap Map = Row.toMap();
-        QString BinaryLogName = Map["Log_name"].toString();
+    try {
+        QTextStream MigOutFileStream(&MigOutFile);
 
-        QStringList CommandLineParameters = BaseCommandLineParameters;
+        foreach (auto Row, BinaryLogList) {
+            QVariantMap Map = Row.toMap();
+            QString BinaryLogName = Map["Log_name"].toString();
 
-        if (DBDiffConfigEntries.contains(BinaryLogName))
-            CommandLineParameters << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str()) + 1);
+            MigOutFileStream << "/" << QString(60, '*') << "\\" << endl
+                             << "| " << BinaryLogName << QString(60 - 2 -  BinaryLogName.length(), ' ') << " |" << endl
+                             << "\\" << QString(60, '*') << "/" << endl
+                             << endl
+                             ;
 
-        CommandLineParameters << BinaryLogName;
+            QStringList CommandLineParameters;
+            QStringList CommandLineParametersNoPsw;
 
-        TargomanDebug(5).noquote()
-                << "mysqlbinlog"
-                << CommandLineParameters.join(" ")
-                ;
+            CommandLineParameters << "--read-from-remote-server";
+            CommandLineParametersNoPsw << "--read-from-remote-server";
 
-        QProcess Process;
-        Process.start("mysqlbinlog", CommandLineParameters);
-        if (!Process.waitForFinished())
-            throw exTargomanBase("Execution failed");
+            for (QStringMap::const_iterator it = DBServerParameters.constBegin();
+                 it != DBServerParameters.constEnd();
+                 it ++
+            ) {
+                CommandLineParameters << "--" + it.key() + "=" + it.value();
+                if (it.key() == "password")
+                    CommandLineParametersNoPsw << "--" + it.key() + "=********";
+                else
+                    CommandLineParametersNoPsw << "--" + it.key() + "=" + it.value();
+            }
+            CommandLineParameters << "--database=" + Configs::DBPrefix.value() + ProjectName
+                                  << "--base64-output=DECODE-ROWS"
+                                  ;
+            CommandLineParametersNoPsw << "--database=" + Configs::DBPrefix.value() + ProjectName
+                                       << "--base64-output=DECODE-ROWS"
+                                       ;
 
-        QByteArray ProcessResult = Process.readAll();
+            if (DBDiffConfigEntries.contains(BinaryLogName)) {
+                CommandLineParameters << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str())/* + 1*/);
+                CommandLineParametersNoPsw << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str())/* + 1*/);
+            }
 
-        TargomanDebug(5).noquote()
-                << "Result Length:"
-                << ProcessResult.length()
-                ;
+            CommandLineParameters << BinaryLogName;
+            CommandLineParametersNoPsw << BinaryLogName;
 
-        if (ProcessResult.isEmpty() == false) {
-//            DBDiffConfigEntries[BinaryLogName] = "3";
-        }
+            TargomanDebug(5).noquote()
+                    << "mysqlbinlog"
+                    << CommandLineParametersNoPsw.join(" ")
+                    ;
 
+            QProcess Process;
+            Process.start("mysqlbinlog", CommandLineParameters);
+            if (!Process.waitForFinished())
+                throw exTargomanBase("Execution failed");
+
+            QByteArray Output;
+            qint64 lastStartPosition = -1;
+            qint64 lastEndPosition = -1;
+
+            while (true) {
+                QByteArray ProcessLineByteArray = Process.readLine();
+                if (ProcessLineByteArray.isNull())
+                    break;
+
+                QString ProcessLine = ProcessLineByteArray;
+
+                if (ProcessLine.endsWith("\n"))
+                    ProcessLine.chop(1);
+                if (ProcessLine.endsWith("\r"))
+                    ProcessLine.chop(1);
+
+                if (ProcessLine.startsWith("# at ")) {
+                    lastStartPosition = ProcessLine.mid(5).trimmed().toInt();
+                }
+
+                int idx;
+                if ((idx = ProcessLine.indexOf(" end_log_pos ")) >= 0) {
+                    idx += QString(" end_log_pos ").length();
+                    int idx2 = ProcessLine.indexOf(" ", idx);
+                    lastEndPosition = (idx2 >= 0
+                                          ? ProcessLine.mid(idx, idx2 - idx + 1).trimmed().toInt()
+                                          : ProcessLine.mid(idx).trimmed().toInt()
+                                      );
+                }
+
+                //process line
+                if (ProcessLine.startsWith("#"))
+                    continue;
+
+//                if (ProcessLine.endsWith("/*!*/;"))
+//                    continue;
+
+                //DBPrefix
+                if (Configs::DBPrefix.value().isEmpty() == false)
+                    ProcessLine = ProcessLine.replace(QRegularExpression("(^|[^a-zA-Z])" + Configs::DBPrefix.value()), "\\1{{dbprefix}}");
+
+                //GlobalHistoryTableName
+                ProcessLine = ProcessLine.replace(QRegularExpression("(^|[^a-zA-Z])" + Configs::GlobalHistoryTableName.value()), "\\1{{GlobalHistoryTableName}}");
+
+                //DEFINER=`root`@`%`
+                ProcessLine = ProcessLine.replace(QRegularExpression("( |\t)DEFINER=`([^`]*)`@`([^`]*)`"), "");
+
+                //AUTO_INCREMENT=1936
+                ProcessLine = ProcessLine.replace(QRegularExpression("(^|[^a-zA-Z])AUTO_INCREMENT(\\s*)=(\\s*)(\\d+)"), "\\1");
+
+                //------------------
+                Output += ProcessLine + "\n";
+            }
+            Output += "\n";
+
+            TargomanDebug(5).noquote()
+                    << "    "
+                    << "Result Length:" << Output.length()
+                    << "lastPosition:" << lastStartPosition
+                    << "lastEndLogPosition:" << lastEndPosition
+                    ;
+
+            MigOutFileStream << Output;
+
+            if (lastEndPosition > 0)
+                DBDiffConfigEntries[BinaryLogName] = QString::number(lastEndPosition);
+        } //foreach (auto Row, BinaryLogList)
+
+        MigOutFile.close();
+    }  catch (std::exception &_exp) {
+        MigOutFile.close();
+        throw;
     }
 
+    if (DBDiffConfigEntries.isEmpty() == false) {
+        QFile File(DBDiffCfgFileName);
+
+        if (!File.open(QFile::Append | QFile::Text))
+            throw exTargomanBase("Could not create or append file");
+
+        QTextStream Stream(&File);
+
+        QString CurrentDateTime = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+        Stream << "# " << CurrentDateTime << endl;
+
+        for (QStringMap::const_iterator it = DBDiffConfigEntries.constBegin();
+             it != DBDiffConfigEntries.constEnd();
+             it++
+        ) {
+            QString Key = it.key();
+            QString Value = *it;
+            Stream << Key << "=" << Value << endl;
+        };
+        File.close();
+    }
 }
 
 } // namespace Targoman::Migrate::Commands
