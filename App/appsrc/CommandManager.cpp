@@ -33,7 +33,6 @@
 #include "Commands/cmdNewLocal.h"
 #include "Commands/cmdHistory.h"
 #include "Commands/cmdList.h"
-#include "Commands/cmdMark.h"
 #include "Commands/cmdCommit.h"
 #include "Commands/cmdCheckBC.h"
 
@@ -77,7 +76,8 @@ void CommandManager::slotExecute() {
                 break;
 
             case enuAppCommand::mark:
-                Command = cmdMark::instancePtr();
+                Configs::Mark.setFromVariant(true);
+                Command = cmdCommit::instancePtr();
                 break;
 
             case enuAppCommand::commit:
@@ -123,10 +123,10 @@ void CommandManager::slotExecute() {
                 QString DBServerName = it.key();
                 QString ConnStringWith = it.value();
 
-                qDebug() << "*addDBEngine" << DBServerName;
+                TargomanDebug(5) << "*addDBEngine" << DBServerName;
                 clsDAC::addDBEngine(enuDBEngines::MySQL, DBServerName);
 
-                qDebug() << "*setConnectionString" << DBServerName << "=" << ConnStringWith;
+                TargomanDebug(5) << "*setConnectionString" << DBServerName << "=" << ConnStringWith;
                 clsDAC::setConnectionString(ConnStringWith, DBServerName);
             }
 
@@ -138,7 +138,7 @@ void CommandManager::slotExecute() {
                 QString ProjectDestinationKey = it.key();
                 QString ConnStringWithSchema = it.value();
 
-                qDebug() << "addDBEngine" << ProjectDestinationKey;
+                TargomanDebug(5) << "addDBEngine" << ProjectDestinationKey;
                 clsDAC::addDBEngine(enuDBEngines::MySQL, ProjectDestinationKey);
 
                 //check if db exists
@@ -158,10 +158,10 @@ void CommandManager::slotExecute() {
                                                           });
 
                 if (ResultTable.toJson(true).object().isEmpty()) {
-                    qDebug() << "database" << Configs::DBPrefix.value() + SchemaName << "not exists in" << DBServerName;
+                    TargomanDebug(5) << "database" << Configs::DBPrefix.value() + SchemaName << "not exists in" << DBServerName;
                     Configs::RunningParameters.NonExistsProjectDBConnectionStrings[ProjectDestinationKey] = ConnStringWithSchema;
                 } else {
-                    qDebug() << "setConnectionString" << ProjectDestinationKey << "=" << ConnStringWithSchema;
+                    TargomanDebug(5) << "setConnectionString" << ProjectDestinationKey << "=" << ConnStringWithSchema;
                     clsDAC::setConnectionString(ConnStringWithSchema, ProjectDestinationKey);
                 }
             }

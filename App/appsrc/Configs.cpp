@@ -34,13 +34,13 @@ tmplConfigurable<enuAppCommand::Type> Configs::Command(
     R"(Application command:
                     showconf    : Show Migrations Config
                     newdb       : Creating new global migration (store in /migrations/.../db/)
+                    newdbdiff   : Creating new global database migration (store in /migrations/db/)
                     newlocal    : Creating new local migration (store in /migrations/.../local/)
                     list        : List of unapplied migrations
                     history     : List of applied migrations
                     commit      : Apply unapplied migrations
-                    mark        : Set migrations as applied to the specified point (not actually run migrations)
+                    mark        : [deprecated. use `commit --mark` or `newdbdiff --mark`] Set migrations as applied to the specified point (not actually run migrations)
 )",
-//newdbdiff      : Creating new global database migration and fills by libTargomanDBCompare (store in /migrations/db/)
 //rollback          : Rollback applied migrations
     enuAppCommand::list,
     ReturnTrueCrossValidator(),
@@ -200,6 +200,17 @@ tmplConfigurable<QString> Configs::MigrationName(
     enuConfigSource::Arg
 );
 
+tmplConfigurable<bool> Configs::Mark(
+    Configs::makeConfig("Mark"),
+    "Mark instead of `commit` or `newdbdiff`",
+    false,
+    ReturnTrueCrossValidator(),
+    "",
+    "",
+    "mark",
+    enuConfigSource::Arg
+);
+
 tmplConfigurable<QString> Configs::DefaultEditor(
     Configs::makeConfig("DefaultEditor"),
     "Default text editor",
@@ -265,13 +276,13 @@ void Configs::FillRunningParameters() {
                             )
                             continue;
 
-//                        qDebug() << "lookup" << DBServerName << "in" << Project.DBDestinations.value(); //.join("|");
+//                        TargomanDebug(5) << "lookup" << DBServerName << "in" << Project.DBDestinations.value(); //.join("|");
 
                         if (Project.AllowDB.value()
                                 && (Project.DBDestinations.value().isEmpty() == false)
                                 && Project.DBDestinations.value().contains(DBServerName)
-                            ) {
-//                            qDebug() << "found";
+                        ) {
+//                            TargomanDebug(5) << "found";
                             DBServerHasProjects = true;
 
                             //---------------------------

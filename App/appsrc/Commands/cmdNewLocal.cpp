@@ -48,18 +48,22 @@ bool cmdNewLocal::run() {
 
     QFile File(FullFileName);
     if (File.open(QFile::WriteOnly | QFile::Text) == false) {
-        qInfo() << "Could not create new migration file.";
+        TargomanInfo(0).noLabel() << "Could not create new migration file.";
         return true;
     }
 
     FullFileName = GetSymlinkTarget(FullFileName);
 
-    qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
+    TargomanInfo(0).noLabel().noquote().nospace() << "Creating new migration file: " << FullFileName;
 
     QTextStream writer(&File);
     writer
         << "#!/bin/bash" << endl
         << "# Migration File: " << FileName << endl
+        << endl
+        << "# The next line is to prevent this file from being committed. When done, delete this and next line:" << endl
+        << BAD_FILE_SIGNATURE << endl
+        << endl
         << "# use $@ for MIGRATIONTOOL and necessary arguments passed from migration runner" << endl
         << "#     e.g.: $@ --command mark --migration-name ..." << endl
         << endl
@@ -78,7 +82,7 @@ fi
         ;
     File.close();
 
-    qInfo().noquote() << "Empty migration file created successfully.";
+    TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully.";
 
     qint64 PID;
 
@@ -97,9 +101,9 @@ fi
                             QStringList() << "add" << FullFileName
                             );
         if (GitAddProcess.waitForFinished())
-            qInfo().noquote() << "File added to git";
+            TargomanInfo(0).noLabel().noquote() << "File added to git";
         else
-            qInfo().noquote() << "Could not add file to git";
+            TargomanInfo(0).noLabel().noquote() << "Could not add file to git";
     }
 
     return true;

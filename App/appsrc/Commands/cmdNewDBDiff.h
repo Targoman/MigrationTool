@@ -38,6 +38,11 @@ public:
     virtual bool needDB() { return true; }
     virtual void help();
     virtual bool run();
+
+    void diff(
+            quint32 _projectIndex,
+            const QString &_fullFileName
+            );
 };
 
 } // namespace Targoman::Migrate::Commands
