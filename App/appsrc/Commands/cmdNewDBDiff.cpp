@@ -172,6 +172,42 @@ void cmdNewDBDiff::diff(
     }
     QMap<QString, quint64> OriginDBDiffConfigEntries = DBDiffConfigEntries;
 
+    auto SaveDBDiffCfgFile = [&OriginDBDiffConfigEntries, &DBDiffConfigEntries, &DBDiffCfgFileName]() -> bool {
+        if (DBDiffConfigEntries.isEmpty())
+            return true;
+
+        QFile File(DBDiffCfgFileName);
+
+        if (!File.open(QFile::Append | QFile::Text))
+            return false; //throw exTargomanBase("Could not create or append file");
+
+        try {
+            QTextStream Stream(&File);
+
+            QString CurrentDateTime = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
+            Stream << "# " << CurrentDateTime << endl;
+
+            for (QMap<QString, quint64>::const_iterator it = DBDiffConfigEntries.constBegin();
+                 it != DBDiffConfigEntries.constEnd();
+                 it++
+            ) {
+                QString Key = it.key();
+                quint64 Value = *it;
+
+                if (OriginDBDiffConfigEntries.contains(Key) && (OriginDBDiffConfigEntries[Key] == Value))
+                    continue;
+
+                Stream << Key << "=" << Value << endl;
+            };
+
+            File.close();
+        }  catch (std::exception &_exp) {
+            File.close();
+            return false;
+        }
+        return true;
+    };
+
     //---------------------------
     QFile MigOutFile(_fullFileName);
     if (!MigOutFile.open(QFile::Append | QFile::Text))
@@ -192,7 +228,7 @@ void cmdNewDBDiff::diff(
 
             for (QStringMap::const_iterator it = DBServerParameters.constBegin();
                  it != DBServerParameters.constEnd();
-                 it ++
+                 it++
             ) {
                 CommandLineParameters << "--" + it.key() + "=" + it.value();
                 if (it.key() == "password")
@@ -274,7 +310,7 @@ void cmdNewDBDiff::diff(
                 ProcessLine = ProcessLine.replace(QRegularExpression("(^|[^a-zA-Z])" + Configs::GlobalHistoryTableName.value()), "\\1{{GlobalHistoryTableName}}");
 
                 //DEFINER=`root`@`%`
-                ProcessLine = ProcessLine.replace(QRegularExpression("( |\t)DEFINER=`([^`]*)`@`([^`]*)`"), "");
+                ProcessLine = ProcessLine.replace(QRegularExpression("(\\s+)DEFINER(\\s*)=(\\s*)`([^`]*)`@`([^`]*)`(\\s+)"), " ");
 
                 //AUTO_INCREMENT=1936
                 ProcessLine = ProcessLine.replace(QRegularExpression("(^|[^a-zA-Z])AUTO_INCREMENT(\\s*)=(\\s*)(\\d+)"), "\\1");
@@ -298,36 +334,16 @@ void cmdNewDBDiff::diff(
         } //foreach (auto Row, BinaryLogList)
 
         MigOutFile.close();
+
     }  catch (std::exception &_exp) {
         MigOutFile.close();
+
+        SaveDBDiffCfgFile();
+
         throw;
     }
 
-    if (DBDiffConfigEntries.isEmpty() == false) {
-        QFile File(DBDiffCfgFileName);
-
-        if (!File.open(QFile::Append | QFile::Text))
-            throw exTargomanBase("Could not create or append file");
-
-        QTextStream Stream(&File);
-
-        QString CurrentDateTime = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
-        Stream << "# " << CurrentDateTime << endl;
-
-        for (QMap<QString, quint64>::const_iterator it = DBDiffConfigEntries.constBegin();
-             it != DBDiffConfigEntries.constEnd();
-             it++
-        ) {
-            QString Key = it.key();
-            quint64 Value = *it;
-
-            if (OriginDBDiffConfigEntries.contains(Key) && (OriginDBDiffConfigEntries[Key] == Value))
-                continue;
-
-            Stream << Key << "=" << Value << endl;
-        };
-        File.close();
-    }
+    SaveDBDiffCfgFile();
 }
 
 } // namespace Targoman::Migrate::Commands
