@@ -139,7 +139,7 @@ void cmdNewDBDiff::diff(
                     .arg(ProjectName)
                     .arg(Configs::DBPrefix.value().isEmpty() ? "" : "." + Configs::DBPrefix.value())
                     ;
-    QStringMap DBDiffConfigEntries;
+    QMap<QString, quint64> DBDiffConfigEntries;
     if (QFile::exists(DBDiffCfgFileName)) {
 
         QFile File(DBDiffCfgFileName);
@@ -163,13 +163,14 @@ void cmdNewDBDiff::diff(
 
                 //bypass old log files
                 if (LineParts[0] == BinaryLogName) {
-                    DBDiffConfigEntries[LineParts[0]] = LineParts[1];
+                    DBDiffConfigEntries[LineParts[0]] = LineParts[1].toULongLong();
                     break;
                 }
             }
         };
         File.close();
     }
+    QMap<QString, quint64> OriginDBDiffConfigEntries = DBDiffConfigEntries;
 
     //---------------------------
     QFile MigOutFile(_fullFileName);
@@ -207,8 +208,8 @@ void cmdNewDBDiff::diff(
                                        ;
 
             if (DBDiffConfigEntries.contains(BinaryLogName)) {
-                CommandLineParameters << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str())/* + 1*/);
-                CommandLineParametersNoPsw << "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str())/* + 1*/);
+                CommandLineParameters << "--start-position=" + QString::number(DBDiffConfigEntries[BinaryLogName]);
+                CommandLineParametersNoPsw << "--start-position=" + QString::number(DBDiffConfigEntries[BinaryLogName]);
             }
 
             CommandLineParameters << BinaryLogName;
@@ -223,7 +224,7 @@ void cmdNewDBDiff::diff(
             MigOutFileStream << "/" << QString(60, '*') << "\\" << endl;
             QString Buffer = BinaryLogName;
             if (DBDiffConfigEntries.contains(BinaryLogName))
-                Buffer += QString(" ") + "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str()));
+                Buffer += QString(" ") + "--start-position=" + QString::number(DBDiffConfigEntries[BinaryLogName]);
             MigOutFileStream << "| " << Buffer << QString(60 - 2 -  Buffer.length(), ' ') << " |" << endl;
             MigOutFileStream << "\\" << QString(60, '*') << "/" << endl;
             MigOutFileStream << endl;
@@ -293,7 +294,7 @@ void cmdNewDBDiff::diff(
             MigOutFileStream << Output;
 
             if (lastEndPosition > 0)
-                DBDiffConfigEntries[BinaryLogName] = QString::number(lastEndPosition);
+                DBDiffConfigEntries[BinaryLogName] = lastEndPosition;
         } //foreach (auto Row, BinaryLogList)
 
         MigOutFile.close();
@@ -313,12 +314,16 @@ void cmdNewDBDiff::diff(
         QString CurrentDateTime = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
         Stream << "# " << CurrentDateTime << endl;
 
-        for (QStringMap::const_iterator it = DBDiffConfigEntries.constBegin();
+        for (QMap<QString, quint64>::const_iterator it = DBDiffConfigEntries.constBegin();
              it != DBDiffConfigEntries.constEnd();
              it++
         ) {
             QString Key = it.key();
-            QString Value = *it;
+            quint64 Value = *it;
+
+            if (OriginDBDiffConfigEntries.contains(Key) && (OriginDBDiffConfigEntries[Key] == Value))
+                continue;
+
             Stream << Key << "=" << Value << endl;
         };
         File.close();
