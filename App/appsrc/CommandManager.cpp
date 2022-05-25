@@ -33,7 +33,6 @@
 #include "Commands/cmdNewLocal.h"
 #include "Commands/cmdHistory.h"
 #include "Commands/cmdList.h"
-//#include "Commands/cmdMark.h"
 #include "Commands/cmdCommit.h"
 #include "Commands/cmdCheckBC.h"
 
@@ -77,7 +76,6 @@ void CommandManager::slotExecute() {
                 break;
 
             case enuAppCommand::mark:
-//                Command = cmdMark::instancePtr();
                 Configs::Mark.setFromVariant(true);
                 Command = cmdCommit::instancePtr();
                 break;

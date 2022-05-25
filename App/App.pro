@@ -23,7 +23,6 @@ HEADERS += \
     appsrc/Commands/cmdCommit.h \
     appsrc/Commands/cmdHistory.h \
     appsrc/Commands/cmdList.h \
-    appsrc/Commands/cmdMark.h \
     appsrc/Commands/cmdShowConf.h
 
 # +-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-+-#
@@ -37,7 +36,6 @@ SOURCES += \
     appsrc/Commands/cmdCommit.cpp \
     appsrc/Commands/cmdHistory.cpp \
     appsrc/Commands/cmdList.cpp \
-    appsrc/Commands/cmdMark.cpp \
     appsrc/Commands/cmdShowConf.cpp \
     appsrc/main.cpp
 
