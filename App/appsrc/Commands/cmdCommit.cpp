@@ -61,7 +61,9 @@ bool cmdCommit::run() {
         else {
             while (true) {
                 qStdout()
-                        << "Which migrations do you want to run?"
+                        << "Which migrations do you want to "
+                        << (Configs::Mark.value() ? "mark" : "commit")
+                        << "?"
                         << " "
                         << reverse("[") << reverse(bold("c")) << reverse("ancel]")
                         << " "
@@ -111,7 +113,10 @@ bool cmdCommit::run() {
             }
         }
 
-        TargomanInfo(0).noLabel() << "Applying migrations:";
+        if (Configs::Mark.value())
+            TargomanInfo(0).noLabel() << "Marked migrations as applied:";
+        else
+            TargomanInfo(0).noLabel() << "Applying migrations:";
         TargomanInfo(0).noLabel() << LINE_SPLITTER;
 
         int idx = 1;
@@ -130,7 +135,11 @@ bool cmdCommit::run() {
                     << " : "
                     ;
 
-            RunMigrationFile(ProjectMigrationFile);
+            //commit instead of mark for CREATE_DB_MIGRATION_HISTORY_FILE_NAME
+            RunMigrationFile(ProjectMigrationFile,
+                             (Configs::Mark.value() == false)
+                             || (ProjectMigrationFile.FileName == CREATE_DB_MIGRATION_HISTORY_FILE_NAME)
+                             );
 
             qStdout() << "OK" << endl;
 
@@ -159,7 +168,11 @@ bool cmdCommit::run() {
                     << " : "
                     ;
 
-            RunMigrationFile(ProjectMigrationFile);
+            //commit instead of mark for CREATE_DB_MIGRATION_HISTORY_FILE_NAME
+            RunMigrationFile(ProjectMigrationFile,
+                             (Configs::Mark.value() == false)
+                             || (ProjectMigrationFile.FileName == CREATE_DB_MIGRATION_HISTORY_FILE_NAME)
+                             );
 
             qStdout() << "OK" << endl;
         }

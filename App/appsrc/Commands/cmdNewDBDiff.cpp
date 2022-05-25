@@ -189,7 +189,10 @@ void cmdNewDBDiff::diff(
             QTextStream Stream(&File);
 
             QString CurrentDateTime = QDateTime::currentDateTime().toString("yyyyMMdd_hhmmss");
-            Stream << "# " << CurrentDateTime << endl;
+            Stream << "# " << CurrentDateTime;
+            if (Configs::Mark.value())
+                Stream << " : mark only";
+            Stream << endl;
 
             for (QMap<QString, quint64>::const_iterator it = DBDiffConfigEntries.constBegin();
                  it != DBDiffConfigEntries.constEnd();

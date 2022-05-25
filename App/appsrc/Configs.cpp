@@ -202,7 +202,7 @@ tmplConfigurable<QString> Configs::MigrationName(
 
 tmplConfigurable<bool> Configs::Mark(
     Configs::makeConfig("Mark"),
-    "Mark instead of commit or newdbdiff",
+    "Mark instead of `commit` or `newdbdiff`",
     false,
     ReturnTrueCrossValidator(),
     "",
