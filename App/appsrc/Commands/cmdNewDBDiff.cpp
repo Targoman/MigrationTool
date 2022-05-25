@@ -183,12 +183,6 @@ void cmdNewDBDiff::diff(
             QVariantMap Map = Row.toMap();
             QString BinaryLogName = Map["Log_name"].toString();
 
-            MigOutFileStream << "/" << QString(60, '*') << "\\" << endl
-                             << "| " << BinaryLogName << QString(60 - 2 -  BinaryLogName.length(), ' ') << " |" << endl
-                             << "\\" << QString(60, '*') << "/" << endl
-                             << endl
-                             ;
-
             QStringList CommandLineParameters;
             QStringList CommandLineParametersNoPsw;
 
@@ -225,6 +219,16 @@ void cmdNewDBDiff::diff(
                     << CommandLineParametersNoPsw.join(" ")
                     ;
 
+            //--------------------------
+            MigOutFileStream << "/" << QString(60, '*') << "\\" << endl;
+            QString Buffer = BinaryLogName;
+            if (DBDiffConfigEntries.contains(BinaryLogName))
+                Buffer += QString(" ") + "--start-position=" + QString::number(atol(DBDiffConfigEntries[BinaryLogName].toStdString().c_str()));
+            MigOutFileStream << "| " << Buffer << QString(60 - 2 -  Buffer.length(), ' ') << " |" << endl;
+            MigOutFileStream << "\\" << QString(60, '*') << "/" << endl;
+            MigOutFileStream << endl;
+
+            //--------------------------
             QProcess Process;
             Process.start("mysqlbinlog", CommandLineParameters);
             if (!Process.waitForFinished())
@@ -258,14 +262,8 @@ void cmdNewDBDiff::diff(
                                           ? ProcessLine.mid(idx, idx2 - idx + 1).trimmed().toInt()
                                           : ProcessLine.mid(idx).trimmed().toInt()
                                       );
-                }
-
-                //process line
-                if (ProcessLine.startsWith("#"))
+                } else if (ProcessLine.startsWith("#") and (ProcessLine.startsWith("# at ") == false))
                     continue;
-
-//                if (ProcessLine.endsWith("/*!*/;"))
-//                    continue;
 
                 //DBPrefix
                 if (Configs::DBPrefix.value().isEmpty() == false)
