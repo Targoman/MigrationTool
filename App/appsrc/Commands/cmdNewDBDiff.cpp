@@ -242,16 +242,20 @@ void cmdNewDBDiff::diff(
                  it++
             ) {
                 CommandLineParameters << "--" + it.key() + "=" + it.value();
+
                 if (it.key() == "password")
                     CommandLineParametersNoPsw << "--" + it.key() + "=********";
                 else
                     CommandLineParametersNoPsw << "--" + it.key() + "=" + it.value();
             }
+
             CommandLineParameters << "--database=" + Configs::DBPrefix.value() + ProjectName
                                   << "--base64-output=DECODE-ROWS"
+                                  << "--skip-gtids=true"
                                   ;
             CommandLineParametersNoPsw << "--database=" + Configs::DBPrefix.value() + ProjectName
                                        << "--base64-output=DECODE-ROWS"
+                                       << "--skip-gtids=true"
                                        ;
 
             if (DBDiffConfigEntries.contains(BinaryLogName)) {
@@ -284,7 +288,7 @@ void cmdNewDBDiff::diff(
             if (!Process.waitForFinished())
                 throw exTargomanBase("Execution failed");
 
-            QByteArray Output;
+            QString Output;
             qint64 lastStartPosition = -1;
             qint64 lastEndPosition = -1;
 
@@ -302,18 +306,20 @@ void cmdNewDBDiff::diff(
 
                 if (ProcessLine.startsWith("# at ")) {
                     lastStartPosition = ProcessLine.mid(5).trimmed().toInt();
+                    continue;
                 }
 
                 int idx;
-                if ((idx = ProcessLine.indexOf(" end_log_pos ")) >= 0) {
+                if (ProcessLine.startsWith("#") && ((idx = ProcessLine.indexOf(" end_log_pos ")) >= 0)) {
                     idx += QString(" end_log_pos ").length();
                     int idx2 = ProcessLine.indexOf(" ", idx);
                     lastEndPosition = (idx2 >= 0
                                           ? ProcessLine.mid(idx, idx2 - idx + 1).trimmed().toInt()
                                           : ProcessLine.mid(idx).trimmed().toInt()
                                       );
-                } else if (ProcessLine.startsWith("#") and (ProcessLine.startsWith("# at ") == false))
                     continue;
+                } /*else if (ProcessLine.startsWith("#") && (ProcessLine.startsWith("# at ") == false))
+                    continue;*/
 
                 //DBPrefix
                 if (Configs::DBPrefix.value().isEmpty() == false)
@@ -332,6 +338,10 @@ void cmdNewDBDiff::diff(
                 Output += ProcessLine + "\n";
             }
             Output += "\n";
+
+            Output = Output.replace(QRegularExpression("(BEGIN\\s*\\/\\*!\\*\\/;)\\s*(COMMIT\\s*\\/\\*!\\*\\/;)\\s*(SET\\s+TIMESTAMP=([0-9.]*)\\/\\*!\\*\\/;)\n"), "");
+            Output = Output.replace(QRegularExpression("(BEGIN\\s*\\/\\*!\\*\\/;)\\s*(SET\\s+TIMESTAMP=([0-9.]*)\\/\\*!\\*\\/;)\\s*(COMMIT\\s*\\/\\*!\\*\\/;)\n"), "");
+            Output = Output.replace(QRegularExpression("(SET\\s+TIMESTAMP=([0-9.]*)\\/\\*!\\*\\/;)\n"), "");
 
             TargomanDebug(5).noquote()
                     << "    "
