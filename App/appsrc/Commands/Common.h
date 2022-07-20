@@ -1173,21 +1173,48 @@ inline void MarkMigrationFile(const stuProjectMigrationFileInfo &_migrationFile,
 
         clsDAC DAC(_migrationFile.Project);
 
-        QString Qry = QString(R"(
-            INSERT INTO %1%2.%3
-               SET migName = ?
-                 , migAppliedAt = NOW()
-                 , migRunType = ?
-            )")
-            .arg(Configs::DBPrefix.value())
-            .arg(Schema)
-            .arg(Configs::GlobalHistoryTableName.value())
-        ;
+        //check status field
+        QString Qry = R"(
+            SELECT COLUMN_NAME
+              FROM information_schema.COLUMNS
+             WHERE TABLE_SCHEMA=?
+               AND TABLE_NAME=?
+               AND COLUMN_NAME='migRunType'
+        )";
+        clsDACResult ResultColumn = DAC.execQuery("", Qry, {
+                                                     Configs::DBPrefix.value() + Schema,
+                                                     Configs::GlobalHistoryTableName.value(),
+                                                 });
 
-        clsDACResult Result = DAC.execQuery("", Qry, {
-                                                _migrationFile.FileName,
-                                                _setAsCommit ? "C" : "M"
-                                            });
+        if (ResultColumn.toJson(true).object().isEmpty()) {
+            Qry = QString(R"(
+                INSERT INTO %1%2.%3
+                   SET migName = ?
+                     , migAppliedAt = NOW()
+                )")
+                .arg(Configs::DBPrefix.value())
+                .arg(Schema)
+                .arg(Configs::GlobalHistoryTableName.value())
+            ;
+            clsDACResult Result = DAC.execQuery("", Qry, {
+                                                    _migrationFile.FileName,
+                                                });
+        } else {
+            Qry = QString(R"(
+                INSERT INTO %1%2.%3
+                   SET migName = ?
+                     , migAppliedAt = NOW()
+                     , migRunType = ?
+                )")
+                .arg(Configs::DBPrefix.value())
+                .arg(Schema)
+                .arg(Configs::GlobalHistoryTableName.value())
+            ;
+            clsDACResult Result = DAC.execQuery("", Qry, {
+                                                    _migrationFile.FileName,
+                                                    _setAsCommit ? "C" : "M",
+                                                });
+        }
     } else { //local
         QFileInfo FileInfo(_migrationFile.FullFileName);
 
