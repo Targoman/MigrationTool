@@ -29,17 +29,17 @@ namespace Targoman::Migrate::Commands {
 cmdHistory::cmdHistory() { ; }
 
 void cmdHistory::help() {
-    qInfo() << "List of applied migrations";
-    //        qInfo() << _line_splitter;
-    //        qInfo() << "./MigrationTool" << "History     : showing the first 10 applied migrations";
-    //        qInfo() << "./MigrationTool" << "History 5   : showing the first 5 applied migrations";
-    //        qInfo() << "./MigrationTool" << "History all : showing all applied migrations";
+    TargomanInfo(0).noLabel() << "List of applied migrations";
+    //        TargomanInfo(0).noLabel() << _line_splitter;
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "History     : showing the first 10 applied migrations";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "History 5   : showing the first 5 applied migrations";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "History all : showing all applied migrations";
 }
 
 bool cmdHistory::run() {
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
@@ -71,14 +71,14 @@ bool cmdHistory::run() {
                     MigrationHistoryAppliedItem.AppliedAt.toString("yyyy-MM-dd hh:mm:ss a")
                 );
 
-//                qDebug() << "*" << MigrationName;
+//                TargomanDebug(5) << "*" << MigrationName;
                 ProjectMigrationFiles.insert(MigrationName, ProjectMigrationFileInfo);
             }
         }
     }
 
-    qInfo() << "Applied migrations:";
-    qInfo() << LINE_SPLITTER;
+    TargomanInfo(0).noLabel() << "Applied migrations:";
+    TargomanInfo(0).noLabel() << LINE_SPLITTER;
     dump(ProjectMigrationFiles, true);
 
     return true;

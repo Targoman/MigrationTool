@@ -48,22 +48,29 @@ bool cmdNewDB::run() {
 
     QFile File(FullFileName);
     if (File.open(QFile::WriteOnly | QFile::Text) == false) {
-        qInfo() << "Could not create new migration file.";
+        TargomanInfo(0).noLabel() << "Could not create new migration file.";
         return true;
     }
 
     FullFileName = GetSymlinkTarget(FullFileName);
 
-    qInfo().noquote().nospace() << "Creating new migration file: " << FullFileName;
+    TargomanInfo(0).noLabel().noquote().nospace() << "Creating new migration file: " << FullFileName;
 
     QTextStream writer(&File);
     writer << "/* Migration File: " << FileName << " */" << endl
            << "/* CAUTION: don't forget to use {{dbprefix}} for schemas */" << endl
-           << endl;
+           << endl
+           << "/* The next line is to prevent this file from being committed. When done, delete this and next line: */" << endl
+           << BAD_FILE_SIGNATURE << endl
+           << endl
+           << "USE `{{dbprefix}}{{Schema}}`;" << endl
+           << endl
+           ;
     File.close();
 
-    qInfo().noquote() << "Empty migration file created successfully.";
+    TargomanInfo(0).noLabel().noquote() << "Empty migration file created successfully.";
 
+    //-- vim --------------------------
     qint64 PID;
 
     if (QProcess::startDetached(Configs::DefaultEditor.value(),
@@ -74,16 +81,16 @@ bool cmdNewDB::run() {
 
     while (kill(PID, 0) == 0) { usleep(1); }
 
-    //----
+    //-- git --------------------------
     if (Configs::AutoGitAdd.value()) {
         QProcess GitAddProcess;
         GitAddProcess.start("git",
                             QStringList() << "add" << FullFileName
                             );
         if (GitAddProcess.waitForFinished())
-            qInfo().noquote() << "File added to git";
+            TargomanInfo(0).noLabel().noquote() << "File added to git";
         else
-            qInfo().noquote() << "Could not add file to git";
+            TargomanInfo(0).noLabel().noquote() << "Could not add file to git";
     }
 
     return true;

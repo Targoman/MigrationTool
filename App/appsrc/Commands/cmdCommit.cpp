@@ -34,24 +34,24 @@ void cmdCommit::help() {
 bool cmdCommit::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
-//    qDebug() << "** All MigrationFiles ******************************";
+//    TargomanDebug(5) << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
     if (ProjectMigrationFiles.isEmpty()) {
-        qInfo() << "nothing to commit";
+        TargomanInfo(0).noLabel() << "nothing to commit";
         return true;
     }
 
-    qDebug() << "** Unapplied MigrationFiles ******************************";
+    TargomanDebug(5) << "** Unapplied MigrationFiles ******************************";
     dump(ProjectMigrationFiles);
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     if (Configs::MigrationName.value().isEmpty()) {
         qint32 RemainCount = 0;
@@ -61,7 +61,9 @@ bool cmdCommit::run() {
         else {
             while (true) {
                 qStdout()
-                        << "Which migrations do you want to run?"
+                        << "Which migrations do you want to "
+                        << (Configs::Mark.value() ? "mark" : "commit")
+                        << "?"
                         << " "
                         << reverse("[") << reverse(bold("c")) << reverse("ancel]")
                         << " "
@@ -111,8 +113,11 @@ bool cmdCommit::run() {
             }
         }
 
-        qInfo() << "Applying migrations:";
-        qInfo() << LINE_SPLITTER;
+        if (Configs::Mark.value())
+            TargomanInfo(0).noLabel() << "Marked migrations as applied:";
+        else
+            TargomanInfo(0).noLabel() << "Applying migrations:";
+        TargomanInfo(0).noLabel() << LINE_SPLITTER;
 
         int idx = 1;
         foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
@@ -130,7 +135,11 @@ bool cmdCommit::run() {
                     << " : "
                     ;
 
-            RunMigrationFile(ProjectMigrationFile);
+            //commit instead of mark for CREATE_DB_MIGRATION_HISTORY_FILE_NAME
+            RunMigrationFile(ProjectMigrationFile,
+                             (Configs::Mark.value() == false)
+                             || (ProjectMigrationFile.FileName == CREATE_DB_MIGRATION_HISTORY_FILE_NAME)
+                             );
 
             qStdout() << "OK" << endl;
 
@@ -159,13 +168,17 @@ bool cmdCommit::run() {
                     << " : "
                     ;
 
-            RunMigrationFile(ProjectMigrationFile);
+            //commit instead of mark for CREATE_DB_MIGRATION_HISTORY_FILE_NAME
+            RunMigrationFile(ProjectMigrationFile,
+                             (Configs::Mark.value() == false)
+                             || (ProjectMigrationFile.FileName == CREATE_DB_MIGRATION_HISTORY_FILE_NAME)
+                             );
 
             qStdout() << "OK" << endl;
         }
     }
 
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     return true;
 }

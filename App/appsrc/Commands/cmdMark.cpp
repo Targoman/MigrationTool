@@ -29,35 +29,35 @@ namespace Targoman::Migrate::Commands {
 cmdMark::cmdMark() { ; }
 
 void cmdMark::help() {
-    qInfo() << "Modifying migration history without actually run migrations";
-    //        qInfo() << _line_splitter;
-    //        qInfo() << "./MigrationTool" << "Mark 20220101_010203                              : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203                             : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration    : add all unapplied migrations upto 20220101_010203";
-    //        qInfo() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration.sh : add all unapplied migrations upto 20220101_010203";
+    TargomanInfo(0).noLabel() << "Modifying migration history without actually run migrations";
+    //        TargomanInfo(0).noLabel() << _line_splitter;
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "Mark 20220101_010203                              : add all unapplied migrations upto 20220101_010203";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "Mark m20220101_010203                             : add all unapplied migrations upto 20220101_010203";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration    : add all unapplied migrations upto 20220101_010203";
+    //        TargomanInfo(0).noLabel() << "./MigrationTool" << "Mark m20220101_010203_description_of_migration.sh : add all unapplied migrations upto 20220101_010203";
 }
 
 bool cmdMark::run() {
     ProjectMigrationFileInfoMap ProjectMigrationFiles;
     ExtractMigrationFiles(ProjectMigrationFiles);
-//    qDebug() << "** All MigrationFiles ******************************";
+//    TargomanDebug(5) << "** All MigrationFiles ******************************";
 //    dump(MigrationFiles);
 
     MigrationHistoryMap MigrationHistories;
     ExtractMigrationHistories(MigrationHistories);
-//    qDebug() << "** MigrationHistories ******************************";
+//    TargomanDebug(5) << "** MigrationHistories ******************************";
 //    dump(MigrationHistories);
 
     RemoveAppliedFromList(ProjectMigrationFiles, MigrationHistories);
 
     if (ProjectMigrationFiles.isEmpty()) {
-        qInfo() << "nothing to mark";
+        TargomanInfo(0).noLabel() << "nothing to mark";
         return true;
     }
 
-//    qDebug() << "** Unapplied MigrationFiles ******************************";
+//    TargomanDebug(5) << "** Unapplied MigrationFiles ******************************";
     dump(ProjectMigrationFiles);
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     if (Configs::MigrationName.value().isEmpty()) {
         qint32 RemainCount = 0;
@@ -117,8 +117,8 @@ bool cmdMark::run() {
             }
         }
 
-        qInfo() << "Marked migrations as applied:";
-        qInfo() << LINE_SPLITTER;
+        TargomanInfo(0).noLabel() << "Marked migrations as applied:";
+        TargomanInfo(0).noLabel() << LINE_SPLITTER;
 
         int idx = 1;
         foreach (auto ProjectMigrationFile, ProjectMigrationFiles) {
@@ -173,7 +173,7 @@ bool cmdMark::run() {
         }
     }
 
-    qInfo() << "";
+    TargomanInfo(0).noLabel() << "";
 
     return true;
 }

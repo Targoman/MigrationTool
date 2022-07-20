@@ -34,11 +34,11 @@ void cmdShowConf::help() {
 bool cmdShowConf::run() {
 //    if (Configs::Sources.size() == 0)
     {
-        qInfo() << "nothing to show";
+        TargomanInfo(0).noLabel() << "nothing to show";
         return true;
     }
 
-//    qInfo().noquote()
+//    TargomanInfo(0).noLabel().noquote()
 //            << QString("Source").leftJustified(20)
 //            << "Databases"
 //            << endl
@@ -60,13 +60,13 @@ bool cmdShowConf::run() {
 //            }
 //        }
 
-//        qInfo().noquote()
+//        TargomanInfo(0).noLabel().noquote()
 //                << Source.Name.value().leftJustified(20)
 //                << DBs.join(", ")
 //                ;
 //    }
 
-//    qInfo() << "";
+//    TargomanInfo(0).noLabel() << "";
 
     return true;
 }

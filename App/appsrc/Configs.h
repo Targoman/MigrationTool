@@ -49,6 +49,7 @@ struct Configs
     static tmplConfigurable<bool>                       LocalOnly;
     static tmplConfigurable<bool>                       All;
     static tmplConfigurable<QString>                    MigrationName;
+    static tmplConfigurable<bool>                       Mark;
 
     static tmplConfigurable<QString>                    DefaultEditor;
 
